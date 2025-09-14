@@ -148,3 +148,34 @@ button {
 button:hover {
   background: #555;
 }
+/* === DEBUG OVERRIDE (רק כדי לראות שינוי) === */
+body {
+  font-family: 'Assistant', sans-serif !important;
+  background: #ffe8f0 !important;          /* ורוד עדין - אמור לקפוץ לעין */
+  color: #1f2937 !important;
+}
+
+header.topbar {
+  background: #111827 !important;          /* כהה יותר */
+  color: #fff !important;
+  border-bottom: 2px solid #a78bfa !important;  /* קו סגול */
+}
+
+.brand .logo {
+  color: #a78bfa !important;
+  font-weight: 800 !important;
+  letter-spacing: .5px !important;
+}
+
+button, .primary, .secondary, .accent {
+  background: #111827 !important;
+  color: #fff !important;
+  border: 1px solid #a78bfa !important;
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+}
+
+button:hover, .primary:hover, .secondary:hover, .accent:hover {
+  background: #7c3aed !important;
+  border-color: #7c3aed !important;
+}
