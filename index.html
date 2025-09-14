@@ -6,120 +6,86 @@
   <title>i_seeeeeeee · תערוכות קרובות אלייך</title>
 
   <!-- Leaflet (מפה) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- פונטים ועיצוב בסיסי -->
+  <!-- גופנים ועיצוב בסיסי -->
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=16">
-  <style>
-    /* תוספות קטנות כדי שהמסך יהיה שלם גם בלי לגעת ב-style.css שלך */
-    body{margin:0;font-family:'Assistant',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    header.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#0e0e10;color:#f5f7fb;border-bottom:1px solid #16171a}
-    header .brand{display:flex;gap:8px;align-items:center}
-    header .logo{font-weight:800}
-    main{max-width:1000px;margin:16px auto;padding:0 12px}
-    .card{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.06)}
-    .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    .row .col{flex:1 1 220px}
-    input[type=text], input[type=date]{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;background:#fafafa}
-    button{border:0;border-radius:12px;padding:10px 16px;font-weight:600;cursor:pointer}
-    .btn-dark{background:#0e0e10;color:#fff}
-    .btn-ghost{background:#e7e4ff;color:#2a2077}
-    .muted{color:#6b7280}
-    #map{height:330px;border-radius:12px;border:1px solid #e7e7e7}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media (min-width:900px){.grid{grid-template-columns:1.3fr .7fr}}
-    .item{border:1px solid #eee;border-radius:12px;padding:12px;display:flex;gap:12px;align-items:flex-start;background:#fff}
-    .badge{display:inline-block;background:#f1f3ff;color:#2a2077;border:1px solid #d8dafe;border-radius:999px;padding:2px 10px;font-size:.8rem;margin-inline-start:6px}
-    .small{font-size:.9rem}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    dialog#details{max-width:680px;border:0;border-radius:16px;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-    .modal-body{padding:18px}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid #eee}
-  </style>
+  <link rel="stylesheet" href="./style.css?v=1">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
       <div class="logo">i_seeeeeeee</div>
-      <div class="tagline muted">תערוכות קרובות אלייך</div>
-    </div>
-    <div class="actions">
-      <button id="loginBtn" class="btn-ghost">התחברות</button>
-      <button id="logoutBtn" class="btn-ghost" style="display:none">התנתקות</button>
-      <span id="userBadge" class="small muted"></span>
+      <div class="tagline">תערוכות קרובות אלייך</div>
     </div>
   </header>
 
   <main>
-    <!-- כרטיס חיפוש -->
-    <section class="card" aria-label="חיפוש תערוכות">
-      <h2 style="margin:0 0 12px 0;">נאחֵת תערוכות סביבך</h2>
+    <section class="card">
+      <h1>נאחת תערוכות סביבך</h1>
 
-      <div class="row" style="margin-bottom:8px">
-        <div class="col">
-          <input id="addressInput" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)" />
-        </div>
-        <div class="actions" style="gap:8px">
-          <button id="geolocateBtn" class="btn-ghost">השתמש/י במיקומי</button>
-          <button id="addressBtn" class="btn-dark">חפש כתובת</button>
-        </div>
+      <!-- חיפוש כתובת/מיקום -->
+      <div class="row wrap">
+        <input id="addressInput" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)">
+        <button id="addressBtn" class="primary">חפש כתובת</button>
+        <button id="locateBtn" class="secondary">השתמש/י במיקומי</button>
       </div>
 
-      <div class="row" style="margin-bottom:8px">
-        <div class="col">
-          <input id="artistInput" type="text" placeholder="חפשי/חפש לפי שם אמן/אמנית" />
-        </div>
-        <div class="col">
-          <input id="dateFrom" type="date" />
-        </div>
-        <div class="col">
-          <input id="dateTo" type="date" />
-        </div>
-        <div class="actions">
-          <button id="searchBtn" class="btn-dark">סינון תערוכות</button>
-        </div>
+      <!-- חיפוש אמן + תאריכים -->
+      <div class="row wrap gapped">
+        <input id="artistInput" type="text" placeholder="חפשי/חפש לפי שם אמן/אמנית">
+        <input id="fromDate" type="date" title="מתאריך">
+        <input id="toDate" type="date" title="עד תאריך">
+        <button id="artistBtn" class="ghost">סינון תערוכות</button>
       </div>
 
+      <!-- רדיוס -->
       <div class="row">
-        <div class="small muted">רדיוס (ק״מ): <span id="radiusValue">10</span></div>
-        <input id="radiusInput" type="range" min="2" max="100" step="1" value="10" style="flex:1" />
-        <div id="locationStatus" class="small muted">לא נבחר מיקום עדיין</div>
+        <input id="radiusInput" type="range" min="1" max="50" value="10" />
+        <div class="muted"><span id="radiusLabel">10</span> ק״מ (רדיוס)</div>
       </div>
+
+      <div id="status" class="muted">לא נבחר מיקום עדיין</div>
     </section>
 
-    <!-- מפה + רשימה -->
-    <section class="grid" style="margin-top:12px">
-      <div class="card">
-        <div id="map" role="region" aria-label="מפת תערוכות"></div>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 8px 0;">תערוכות נמצאו</h3>
-        <div id="resultsList" class="list" aria-live="polite"></div>
-      </div>
+    <!-- מפה -->
+    <section class="card">
+      <div id="map"></div>
+    </section>
+
+    <!-- רשימת תערוכות -->
+    <section class="card">
+      <h2>תערוכות נמצאו</h2>
+      <div id="results"></div>
     </section>
   </main>
 
-  <!-- מודל פרטים -->
-  <dialog id="details">
-    <div class="modal-header">
-      <strong id="detailsTitle">פרטי תערוכה</strong>
-      <button id="closeDetails" class="btn-ghost">סגירה</button>
-    </div>
-    <div class="modal-body">
-      <div id="detailsBody"></div>
-      <div class="actions" style="margin-top:12px">
-        <a id="detailsCalendar" class="btn-dark" target="_blank" rel="noopener">הוסף ליומן</a>
-        <a id="detailsDirections" class="btn-ghost" target="_blank" rel="noopener">ניווט במפה</a>
-      </div>
-    </div>
+  <!-- מודל לפרטי תערוכה -->
+  <dialog id="exhibitDialog">
+    <article>
+      <header>
+        <h3 id="dlgTitle"></h3>
+        <button id="dlgClose" aria-label="סגור">×</button>
+      </header>
+      <div id="dlgBody"></div>
+      <footer>
+        <a id="dlgLink" href="#" target="_blank" rel="noopener" class="primary">לאתר/אירוע</a>
+      </footer>
+    </article>
   </dialog>
 
-  <!-- קבצי JS: קונפיג, אפליקציה -->
-  <script type="module" src="firebase-config.js?v=16"></script>
-  <!-- dayjs (תאריכים קלים) -->
-  <script src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
-  <script type="module" src="app.js?v=16"></script>
+  <!-- מודל תוצאות חיפוש אמן -->
+  <dialog id="artistDialog">
+    <article>
+      <header>
+        <h3>תערוכות של האמן/ית</h3>
+        <button id="artistDlgClose" aria-label="סגור">×</button>
+      </header>
+      <div id="artistDlgBody"></div>
+    </article>
+  </dialog>
+
+  <script type="module" src="./app.js?v=1"></script>
 </body>
 </html>
