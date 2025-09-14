@@ -1,82 +1,61 @@
 /* בסיס */
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  margin: 0;
-  font-family: 'Assistant', system-ui, Arial, sans-serif;
-  color: #222;
-  background: #f7f7f9;
-  line-height: 1.6;
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0; background:#f7f7f9; color:#222;
+  font-family:'Assistant',system-ui,Arial,sans-serif; line-height:1.6
 }
 
 /* טופ־בר */
-header.topbar {
-  background: #111827;
-  color: #fff;
-  padding: 12px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #2a2e35;
-  position: relative; /* לא sticky כדי שלא יחסום קליקים */
-  z-index: 1;
+header.topbar{
+  background:#111827;color:#fff;padding:12px 16px;
+  display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid #2a2e35;position:relative;z-index:1
 }
-.brand .logo { font-weight: 800; letter-spacing: .3px; }
-.brand .tagline { color: #a3a3a3; font-size: .9rem; }
+.brand .logo{font-weight:800;letter-spacing:.3px}
+.brand .tagline{color:#a3a3a3;font-size:.9rem}
 
-/* אזור בקרות */
-.controls {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 12px 16px;
+/* כפתורים ושדות */
+button{
+  border:1px solid #d1d5db;background:#fff;color:#111827;
+  padding:10px 14px;border-radius:10px;cursor:pointer;
+  transition:background .15s ease, transform .05s ease
 }
-
-/* כפתורים */
-button {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #111827;
-  padding: 10px 14px;
-  border-radius: 10px;
-  transition: background .15s ease, transform .05s ease;
-  pointer-events: auto;
-  cursor: pointer;
+button:hover{background:#f3f4f6;transform:translateY(-1px)}
+.primary{background:#111827;color:#fff;border-color:#111827}
+.primary:hover{background:#1f2937}
+.accent{background:#a78bfa;color:#1b1034;border-color:#8b6df3}
+.accent:hover{background:#8b6df3}
+input[type="text"]{
+  padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;min-width:260px
 }
-button:hover { background: #f3f4f6; transform: translateY(-1px); }
-.primary { background: #111827; color: #fff; border-color: #111827; }
-.primary:hover { background: #1f2937; }
-.accent { background: #a78bfa; color: #1b1034; border-color: #8b6df3; }
-.accent:hover { background: #8b6df3; }
-.secondary { }
+input[type="range"]{accent-color:#a78bfa}
 
 /* כרטיסים */
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 14px;
-  margin: 12px 16px;
+.card{
+  background:#fff;border:1px solid #e5e7eb;border-radius:14px;
+  padding:14px;margin:12px 16px; display:grid; gap:8px;
+  box-shadow:0 1px 0 rgba(0,0,0,.02) inset;
 }
-.card .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-.muted { color: #6b7280; }
+.card h3{margin:.2rem 0 .1rem}
+.card .small{font-size:.9rem}
+.card img{width:100%;height:220px;object-fit:cover;border-radius:10px;border:1px solid #eee}
 
-/* מפה – חשוב להגדיר גובה */
-#map {
-  height: 420px;
-  width: 100%;
-  margin: 12px 16px 24px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  position: relative; z-index: 0;
+/* רשימת כרטיסים */
+#results{display:grid;gap:12px;margin:0 16px 8px}
+#results .card .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.muted{color:#6b7280}
+
+/* מפה — חובה גובה */
+#map{
+  height:420px;width:100%;margin:12px 16px 24px;border-radius:12px;
+  border:1px solid #e5e7eb;position:relative;z-index:0
 }
 
-/* מניעת שכבות חוסמות קליקים */
-.overlay, .backdrop, .scrim, .modal, .cover { pointer-events: none !important; }
-main, #app, .content { position: relative; z-index: 1; }
+/* בטיחות קליקים */
+.overlay,.backdrop,.scrim,.modal,.cover{pointer-events:none!important}
+main,#app,.content{position:relative;z-index:1}
 
 /* מובייל */
-@media (max-width: 900px) {
-  .controls { position: sticky; top: 0; z-index: 2; background: #f7f7f9; }
-  #map { height: 360px; }
+@media (max-width:900px){
+  #map{height:360px}
 }
