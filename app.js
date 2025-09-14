@@ -1,4 +1,4 @@
-// ================== Helpers ==================
+// ===== עזר מהיר =====
 const $  = (s, c=document)=>c.querySelector(s);
 const $$ = (s, c=document)=>Array.from(c.querySelectorAll(s));
 const toKm = m => (m/1000).toFixed(1);
@@ -10,91 +10,134 @@ const haversine = (a,b)=>{
   return 2*R*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
 };
 
-// ================== Demo data ==================
+// ===== דמו: תערוכות עם תיאור ותמונה =====
 const EVENTS = [
-  {id:'ta1', title:'תערוכה: קווים של אור', place:'מוזיאון תל אביב', lat:32.0779, lng:34.7860, start:'2025-09-20T19:00:00', end:'2025-09-20T21:00:00'},
-  {id:'tlv2', title:'פופ־אפ צילום עכשווי', place:'גלריה גורדון, תל אביב', lat:32.0865, lng:34.7747, start:'2025-09-22T20:00:00', end:'2025-09-22T22:00:00'},
-  {id:'jrs1', title:'אמנות ואור בירושלים', place:'העיר העתיקה, ירושלים', lat:31.7783, lng:35.2339, start:'2025-09-25T18:30:00', end:'2025-09-25T20:30:00'},
-  {id:'hfa1', title:'הדפס עכשווי', place:'מוזיאון חיפה', lat:32.8150, lng:34.9896, start:'2025-09-28T19:30:00', end:'2025-09-28T21:30:00'}
+  {
+    id:'tlv1', title:'אמנות רחוב בתל אביב',
+    place:'גלריה גורדון, תל אביב', lat:32.0853, lng:34.7818,
+    start:'2025-09-20T18:00:00', end:'2025-09-20T21:00:00',
+    desc:'תערוכה קבוצתית של אמני רחוב צעירים מהמרכז, בהשראת החיים העירוניים.',
+    img:'https://source.unsplash.com/900x600/?street-art,graffiti'
+  },
+  {
+    id:'tlv2', title:'צילום עכשווי',
+    place:'מוזיאון תל אביב', lat:32.0779, lng:34.7860,
+    start:'2025-09-22T19:30:00', end:'2025-09-22T22:00:00',
+    desc:'תערוכת צילום המציגה אמנים בינלאומיים לצד יוצרים מקומיים.',
+    img:'https://source.unsplash.com/900x600/?photography,art'
+  },
+  {
+    id:'jrs1', title:'אמנות אור בירושלים',
+    place:'מוזיאון ישראל, ירושלים', lat:31.7722, lng:35.2043,
+    start:'2025-09-25T20:00:00', end:'2025-09-25T22:00:00',
+    desc:'מיצבים אינטראקטיביים סביב נושא האור, בחללים פנימיים וחיצוניים.',
+    img:'https://source.unsplash.com/900x600/?light,installation'
+  },
+  {
+    id:'hfa1', title:'הדפס עכשווי',
+    place:'מוזיאון חיפה לאמנות', lat:32.8150, lng:34.9896,
+    start:'2025-09-28T18:00:00', end:'2025-09-28T20:00:00',
+    desc:'סקירה רחבה של אמני הדפס ישראלים עם טכניקות חדשות.',
+    img:'https://source.unsplash.com/900x600/?printmaking,art'
+  },
+  {
+    id:'bsh1', title:'פסלים בים',
+    place:'אשדוד ארט מוזיאום', lat:31.7928, lng:34.6497,
+    start:'2025-09-30T17:00:00', end:'2025-09-30T19:30:00',
+    desc:'תערוכה חיצונית של פסלים מול הים, עם אמנים בינ״ל.',
+    img:'https://source.unsplash.com/900x600/?sculpture,sea'
+  },
+  {
+    id:'nat1', title:'תערוכת וידאו ארט',
+    place:'גלריה העיר, נתניה', lat:32.3215, lng:34.8532,
+    start:'2025-10-02T19:00:00', end:'2025-10-02T21:00:00',
+    desc:'וידאו-ארט חדשני של אמנים צעירים, בשילוב הקרנות חוץ.',
+    img:'https://source.unsplash.com/900x600/?video,art'
+  },
+  {
+    id:'b7-1', title:'עבודות חדשות בבאר שבע',
+    place:'מרכז לאמנות דיגיטלית, באר שבע', lat:31.2520, lng:34.7915,
+    start:'2025-10-05T18:30:00', end:'2025-10-05T21:00:00',
+    desc:'קבוצתית בתחום האמנות הדיגיטלית, חוויה אינטראקטיבית.',
+    img:'https://source.unsplash.com/900x600/?digital,art'
+  }
 ];
 
-// ================== State ==================
+// ===== מצב =====
 const state = {
-  userLoc: null, // {lat,lng,label}
+  userLoc: null,          // {lat,lng,label}
   radiusKm: 10,
   map: null,
-  markers: {you:null, events:[]}
+  markers: { you:null, events:[] }
 };
 
-// ================== Map ==================
+// ===== מפה =====
 function initMap(){
-  const center = state.userLoc || {lat:32.08,lng:34.78};
+  const center = state.userLoc || {lat:32.08, lng:34.78}; // תל אביב ברירת מחדל
   state.map = L.map($('#map')).setView([center.lat, center.lng], 12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom: 19, attribution: '&copy; OpenStreetMap'
+    maxZoom:19, attribution:'&copy; OpenStreetMap'
   }).addTo(state.map);
   setYouMarker();
 }
-
 function setYouMarker(){
   if (!state.map || !state.userLoc) return;
   if (state.markers.you) state.map.removeLayer(state.markers.you);
-  state.markers.you = L.marker([state.userLoc.lat, state.userLoc.lng], {title:'המיקום שלי'})
-    .addTo(state.map).bindPopup('את/ה כאן').openPopup();
+  state.markers.you = L.circleMarker([state.userLoc.lat, state.userLoc.lng], {
+    radius:7, color:'#a78bfa', fillColor:'#a78bfa', fillOpacity:.9
+  }).addTo(state.map).bindPopup('את/ה כאן');
 }
-
 function clearEventMarkers(){
   state.markers.events.forEach(m=>state.map.removeLayer(m));
   state.markers.events = [];
 }
 
-// ================== Render ==================
+// ===== רנדר תערוכות =====
 function renderEvents(){
   const list = $('#results');
   if (!state.userLoc){ list.innerHTML = ''; return; }
 
-  // decorate with distance
-  const withDist = EVENTS.map(e=>{
-    const d = haversine(state.userLoc, {lat:e.lat,lng:e.lng});
-    return {...e, distanceMeters: d};
-  })
-  .filter(e=> e.distanceMeters <= state.radiusKm*1000 )
-  .sort((a,b)=> a.distanceMeters - b.distanceMeters);
+  const withDist = EVENTS
+    .map(e=>({...e, d: haversine(state.userLoc, {lat:e.lat,lng:e.lng})}))
+    .filter(e=> e.d <= state.radiusKm*1000)
+    .sort((a,b)=> a.d - b.d);
 
-  list.innerHTML = withDist.length ? '' : `<div class="card">לא נמצאו תערוכות ברדיוס ${state.radiusKm} ק״מ.</div>`;
+  list.innerHTML = withDist.length ? '' :
+    `<div class="card">לא נמצאו תערוכות ברדיוס ${state.radiusKm} ק״מ.</div>`;
 
   clearEventMarkers();
 
   withDist.forEach(ev=>{
-    // card
+    // כרטיס
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
+      <img src="${ev.img}" alt="${ev.title}">
       <h3>${ev.title}</h3>
       <div class="muted small">${ev.place}</div>
-      <div class="muted small">מרחק: ${toKm(ev.distanceMeters)} ק״מ</div>
+      <div class="muted small">${new Date(ev.start).toLocaleString('he-IL')}</div>
+      <p class="small" style="margin:.4rem 0">${ev.desc}</p>
       <div class="row wrap">
-        <button class="primary" data-act="maps">פתח מפות</button>
-        <button class="accent"  data-act="gcal">הוסף ליומן</button>
+        <button class="primary"  data-act="maps">פתח מפות</button>
+        <button class="accent"   data-act="ics">הוסף ליומן</button>
         <button class="secondary" data-act="share">שיתוף</button>
       </div>
     `;
-    // actions
     card.addEventListener('click', (e)=>{
       const btn = e.target.closest('button'); if(!btn) return;
       const act = btn.dataset.act;
       if (act==='maps'){
         const q = encodeURIComponent(`${ev.title} ${ev.place}`);
         window.open(`https://www.google.com/maps/search/?api=1&query=${ev.lat},${ev.lng} (${q})`, '_blank');
-      } else if (act==='gcal'){
-        // ICS download
+      } else if (act==='ics'){
+        const dt = s=> s.replace(/[-:]/g,'').replace('.000','');
         const ics = [
           'BEGIN:VCALENDAR','VERSION:2.0','CALSCALE:GREGORIAN','METHOD:PUBLISH',
           'BEGIN:VEVENT',
           `UID:${ev.id}@i-seeeeeeee`,
           `SUMMARY:${ev.title}`,
-          `DTSTART:${ev.start.replace(/[-:]/g,'').replace('.000','').replace('T','T')}`,
-          `DTEND:${ev.end.replace(/[-:]/g,'').replace('.000','').replace('T','T')}`,
+          `DTSTART:${dt(ev.start)}`,
+          `DTEND:${dt(ev.end)}`,
           `LOCATION:${ev.place}`,
           'END:VEVENT','END:VCALENDAR'
         ].join('\r\n');
@@ -104,44 +147,37 @@ function renderEvents(){
         a.href = url; a.download = `${ev.id}.ics`; a.click();
         URL.revokeObjectURL(url);
       } else if (act==='share'){
-        const text = `${ev.title} • ${ev.place} • ${toKm(ev.distanceMeters)} ק״מ ממני`;
-        if (navigator.share) navigator.share({title:ev.title,text, url: location.href});
-        else {
-          navigator.clipboard?.writeText(text);
-          alert('הפרטים הועתקו ללוח.');
-        }
+        const text = `${ev.title} • ${ev.place} • ${toKm(ev.d)} ק״מ ממני`;
+        if (navigator.share) navigator.share({title:ev.title, text, url: location.href});
+        else { navigator.clipboard?.writeText(text); alert('הפרטים הועתקו ללוח'); }
       }
     });
-
     list.appendChild(card);
 
-    // marker
+    // סמן על המפה
     const m = L.marker([ev.lat, ev.lng], {title: ev.title})
       .addTo(state.map)
-      .bindPopup(`<b>${ev.title}</b><br/>${ev.place}<br/>${toKm(ev.distanceMeters)} ק״מ`);
+      .bindPopup(`<b>${ev.title}</b><br/>${ev.place}<br/>${toKm(ev.d)} ק״מ`);
     state.markers.events.push(m);
   });
 
-  // fit bounds
-  const points = [
+  // התאמת תצוגה
+  const bounds = [
     [state.userLoc.lat, state.userLoc.lng],
     ...state.markers.events.map(m=>m.getLatLng())
   ];
-  if (points.length>1){
-    state.map.fitBounds(points, {padding:[40,40]});
-  }
+  if (bounds.length>1) state.map.fitBounds(bounds, {padding:[40,40]});
 }
 
-// ================== Geolocation (auto + manual) ==================
+// ===== גאולוקציה =====
 async function geocodeAddress(addr){
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr)}&accept-language=he`;
   const res = await fetch(url, {headers:{'User-Agent':'exhibitions-app-demo'}});
   const data = await res.json();
   if (!data.length) throw new Error('כתובת לא נמצאה');
   const item = data[0];
-  return {lat: parseFloat(item.lat), lng: parseFloat(item.lon), label: item.display_name};
+  return {lat:+item.lat, lng:+item.lon, label:item.display_name};
 }
-
 function setUserLoc(loc){
   state.userLoc = loc;
   $('#chosenPlace').textContent = loc.label || `${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}`;
@@ -149,102 +185,55 @@ function setUserLoc(loc){
   setYouMarker();
   renderEvents();
 }
-
-// ================== DOM bindings ==================
-document.addEventListener('DOMContentLoaded', ()=>{
-  // radius slider
-  const radius = $('#radiusInput'), radiusVal = $('#radiusVal');
-  if (radius){
-    radius.addEventListener('input', ()=>{
-      state.radiusKm = +radius.value;
-      radiusVal.textContent = radius.value;
-      renderEvents();
-    });
-    state.radiusKm = +radius.value;
-    radiusVal.textContent = radius.value;
-  }
-
-  // manual address search
-  $('#geocodeBtn')?.addEventListener('click', async ()=>{
-    const addr = $('#addressInput').value.trim();
-    if (!addr) return alert('כתבי כתובת…');
-    try{
-      const loc = await geocodeAddress(addr);
-      setUserLoc({lat:loc.lat, lng:loc.lng, label: addr});
-      state.map.setView([loc.lat, loc.lng], 13);
-    }catch(e){ alert('לא הצלחתי לאתר את הכתובת'); }
-  });
-
-  // “use my location” button
-  $('#useMyLocationBtn')?.addEventListener('click', ()=> getGeolocation());
-
-  // global controls (דמו כללי)
-  $('#openMapsBtn')?.addEventListener('click', ()=>{
-    if (!state.userLoc) return alert('בחרי מיקום קודם');
-    window.open(`https://www.google.com/maps/search/?api=1&query=${state.userLoc.lat},${state.userLoc.lng}`,'_blank');
-  });
-
-  $('#addToCalendarBtn')?.addEventListener('click', ()=>{
-    // לוקח את האירוע הקרוב ביותר כרגע
-    if (!state.userLoc) return alert('בחרי מיקום קודם');
-    const nearest = EVENTS
-      .map(e=>({...e, d:haversine(state.userLoc,{lat:e.lat,lng:e.lng})}))
-      .sort((a,b)=>a.d-b.d)[0];
-    if (!nearest) return alert('אין אירועים קרובים');
-    const ics = [
-      'BEGIN:VCALENDAR','VERSION:2.0','CALSCALE:GREGORIAN','METHOD:PUBLISH',
-      'BEGIN:VEVENT',
-      `UID:${nearest.id}@i-seeeeeeee`,
-      `SUMMARY:${nearest.title}`,
-      `DTSTART:${nearest.start.replace(/[-:]/g,'')}`,
-      `DTEND:${nearest.end.replace(/[-:]/g,'')}`,
-      `LOCATION:${nearest.place}`,
-      'END:VEVENT','END:VCALENDAR'
-    ].join('\r\n');
-    const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `${nearest.id}.ics`; a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  $('#shareBtn')?.addEventListener('click', ()=>{
-    if (navigator.share) navigator.share({title:'i_seeeeeeee — Exhibitions', url: location.href});
-    else { navigator.clipboard?.writeText(location.href); alert('קישור הועתק.'); }
-  });
-
-  $('#submitEventBtn')?.addEventListener('click', ()=>{
-    alert('טופס “הוסף אירוע” יגיע בשלב הבא 🙂');
-  });
-
-  // init map immediately (so שיש קנבס), ואז ננסה מיקום אוטומטי
-  initMap();
-  getGeolocation(true);
-});
-
-// ================== Auto Geolocation ==================
 function getGeolocation(isAuto=false){
-  if (!navigator.geolocation){
-    if (isAuto) console.warn('Geolocation לא נתמך');
-    return;
-  }
+  if (!navigator.geolocation){ if(!isAuto) alert('הדפדפן לא תומך במיקום'); return; }
   navigator.geolocation.getCurrentPosition(
-    pos=>{
-      setUserLoc({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        label: 'המיקום שלי'
-      });
-    },
-    err=>{
+    pos=> setUserLoc({lat:pos.coords.latitude, lng:pos.coords.longitude, label:'המיקום שלי'}),
+    err=> {
       if (isAuto){
-        console.warn('שגיאת מיקום אוטומטי:', err.message);
         // ברירת מחדל נעימה
-        setUserLoc({lat:32.08,lng:34.78,label:'תל אביב (ברירת מחדל)'});
-      }else{
+        setUserLoc({lat:32.08, lng:34.78, label:'תל אביב (ברירת מחדל)'});
+      } else {
         alert('לא ניתן לאתר מיקום כרגע');
       }
     },
     {enableHighAccuracy:true, timeout:8000, maximumAge:60000}
   );
 }
+
+// ===== DOM =====
+document.addEventListener('DOMContentLoaded', ()=>{
+  // מפה + מיקום אוטומטי
+  initMap();
+  getGeolocation(true);
+
+  // רדיוס
+  const r = $('#radiusInput'), rv = $('#radiusVal');
+  if (r){ r.addEventListener('input', ()=>{ state.radiusKm=+r.value; rv.textContent=r.value; renderEvents(); }); rv.textContent=r.value; state.radiusKm=+r.value; }
+
+  // חיפוש כתובת ידני
+  $('#geocodeBtn')?.addEventListener('click', async ()=>{
+    const addr = $('#addressInput').value.trim();
+    if (!addr) return alert('כתבי כתובת…');
+    try{
+      const loc = await geocodeAddress(addr);
+      setUserLoc({lat:loc.lat, lng:loc.lng, label:addr});
+      state.map.setView([loc.lat, loc.lng], 13);
+    } catch(e){ alert('לא הצלחתי לאתר את הכתובת'); }
+  });
+
+  // כפתור “השתמש במיקומי”
+  $('#useMyLocationBtn')?.addEventListener('click', ()=> getGeolocation(false));
+
+  // “התחברות/התנתקות” — דמו UI
+  $('#loginBtn')?.addEventListener('click', ()=>{
+    $('#loginBtn').style.display='none';
+    $('#logoutBtn').style.display='inline-block';
+    alert('מחוברת! (דמו)');
+  });
+  $('#logoutBtn')?.addEventListener('click', ()=>{
+    $('#logoutBtn').style.display='none';
+    $('#loginBtn').style.display='inline-block';
+    alert('התנתקת (דמו)');
+  });
+});
