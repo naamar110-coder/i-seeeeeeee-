@@ -1,6 +1,7 @@
 /************************************************
- * Exhibitions – App.js (v200, fixed)
- * מפה, כתובת/מיקום, רדיוס, כרטיסים עם "קרא עוד".
+ * Exhibitions – App.js (v210)
+ * מפת Leaflet + כתובת/מיקום/רדיוס + חיפוש אמן ותאריכים
+ * יוצר לבד את ה-UI אם חסר ב-HTML.
  ************************************************/
 
 /* ---------- נתוני דמו (ת"א) ---------- */
@@ -78,10 +79,31 @@ function gcalUrl(ev){
 let map, markersLayer;
 let userCenter = null;
 let radiusKm = 10;
-let filters = { from:null, to:null };
+let filters = { from:null, to:null, artist:'' };
 
 /* ---------- Ensure DOM ---------- */
 function ensureContainers(){
+  // בלוק חיפוש (אם חסר – ניצור)
+  if(!$('#searchPanel')){
+    const wrap = document.createElement('div');
+    wrap.id = 'searchPanel';
+    wrap.style.cssText = 'margin:16px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px';
+    wrap.innerHTML = `
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input id="artistInput" placeholder="חיפוש אמן / כותרת / מוסד" style="flex:1;min-width:210px;padding:10px;border:1px solid #e5e7eb;border-radius:10px" />
+        <label class="small muted">מתאריך</label>
+        <input id="dateFrom" type="date" style="padding:8px;border:1px solid #e5e7eb;border-radius:10px" />
+        <label class="small muted">עד</label>
+        <input id="dateTo" type="date" style="padding:8px;border:1px solid #e5e7eb;border-radius:10px" />
+        <button id="clearFilters" class="btn" style="border:1px solid #d1d5db;border-radius:10px;padding:8px 10px;background:#fff">נקה סינון</button>
+      </div>
+      <div class="small muted" id="filterNote" style="margin-top:6px"></div>
+    `;
+    // נכניס לפני המפה אם קיימת, אחרת ל-body
+    const anchor = $('#map') || document.body.firstElementChild;
+    document.body.insertBefore(wrap, anchor || null);
+  }
+
   if(!$('#results')){
     const r = document.createElement('div');
     r.id='results';
@@ -114,10 +136,19 @@ async function geocodeAddress(q){
 function setUserCenter(lat,lng){ userCenter={lat,lng}; renderAll(); }
 
 /* ---------- Filters ---------- */
+function matchesArtist(x, q){
+  if(!q) return true;
+  q = q.trim().toLowerCase();
+  const hay = [
+    x.title, x.venue, x.city, (x.address||''), ...(x.artists||[]), ...(x.tags||[])
+  ].join(' • ').toLowerCase();
+  return hay.includes(q);
+}
 function getFiltered(){
   let list = EXHIBITIONS.filter(x=>{
     if(filters.from && toISO(x.end)   < toISO(filters.from)) return false;
     if(filters.to   && toISO(x.start) > toISO(filters.to))   return false;
+    if(!matchesArtist(x, filters.artist)) return false;
     return true;
   });
   if(userCenter){
@@ -143,6 +174,17 @@ function renderAll(){
       const g = L.featureGroup(list.map(x=>L.marker([x.lat,x.lng])));
       map.fitBounds(g.getBounds().pad(0.2));
     }catch{}
+  }
+
+  // summary note
+  const note = $('#filterNote');
+  if(note){
+    const chips = [];
+    if(filters.artist) chips.push(`אמן/טקסט: “${filters.artist}”`);
+    if(filters.from)   chips.push(`מ-${filters.from}`);
+    if(filters.to)     chips.push(`עד ${filters.to}`);
+    if(userCenter)     chips.push(`רדיוס ${radiusKm}ק״מ`);
+    note.textContent = `נמצאו ${list.length} תערוכות${chips.length?` | סינון: ${chips.join(' · ')}`:''}`;
   }
 
   // cards
@@ -207,7 +249,23 @@ function renderAll(){
 
 /* ---------- Wire UI ---------- */
 function wireUI(){
-  // כתובת
+  // חיפוש אמן/טקסט
+  $('#artistInput')?.addEventListener('input', e=>{
+    filters.artist = e.target.value || '';
+    renderAll();
+  });
+  // תאריכים
+  $('#dateFrom')?.addEventListener('change', e=>{ filters.from=e.target.value||null; renderAll(); });
+  $('#dateTo')  ?.addEventListener('change', e=>{ filters.to  =e.target.value||null; renderAll(); });
+  $('#clearFilters')?.addEventListener('click', ()=>{
+    filters = {...filters, from:null, to:null, artist:''};
+    if($('#artistInput')) $('#artistInput').value='';
+    if($('#dateFrom')) $('#dateFrom').value='';
+    if($('#dateTo'))   $('#dateTo').value='';
+    renderAll();
+  });
+
+  // כתובת ידנית (אם יש ב-HTML שלך)
   $('#geocodeBtn')?.addEventListener('click', async ()=>{
     const q = $('#addressInput')?.value || '';
     if(!q) { alert('כתבי כתובת'); return; }
@@ -233,10 +291,6 @@ function wireUI(){
   const rr = $('#radiusRange'), rv = $('#radiusValue');
   if(rr){ rr.addEventListener('input', e=>{ radiusKm=+e.target.value; if(rv) rv.textContent=radiusKm; });
          rr.addEventListener('change', renderAll); if(rv) rv.textContent=rr.value; }
-
-  // תאריכים (אם קיימים)
-  $('#dateFrom')?.addEventListener('change', e=>{ filters.from=e.target.value||null; renderAll(); });
-  $('#dateTo')  ?.addEventListener('change', e=>{ filters.to  =e.target.value||null; renderAll(); });
 }
 
 /* ---------- Init ---------- */
