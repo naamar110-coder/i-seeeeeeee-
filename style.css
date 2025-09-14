@@ -124,3 +124,27 @@ menu { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
   .layout { grid-template-columns: 1fr; }
   #map { height: 360px; }
 }
+body {
+  font-family: 'Assistant', sans-serif;
+  background-color: #fafafa;
+  color: #222;
+}
+
+header.topbar {
+  background: #000;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+button {
+  background: #222;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #555;
+}
