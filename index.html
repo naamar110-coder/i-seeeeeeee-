@@ -9,9 +9,12 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- גופנים ועיצוב בסיסי -->
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css?v=1">
+  <!-- Day.js לעבודה נוחה עם תאריכים -->
+  <script src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1/locale/he.js"></script>
+
+  <!-- עיצוב -->
+  <link rel="stylesheet" href="style.css?v=30">
 </head>
 <body>
   <header class="topbar">
@@ -19,34 +22,39 @@
       <div class="logo">i_seeeeeeee</div>
       <div class="tagline">תערוכות קרובות אלייך</div>
     </div>
+    <button id="loginBtn" class="secondary">התחברות</button>
   </header>
 
   <main>
+    <!-- כרטיס חיפוש ראשי -->
     <section class="card">
-      <h1>נאחת תערוכות סביבך</h1>
+      <h1 class="h1">נאתר תערוכות סביבך</h1>
 
-      <!-- חיפוש כתובת/מיקום -->
+      <!-- כתובת + שימוש במיקומי -->
       <div class="row wrap">
-        <input id="addressInput" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)">
-        <button id="addressBtn" class="primary">חפש כתובת</button>
-        <button id="locateBtn" class="secondary">השתמש/י במיקומי</button>
+        <input id="addressInput" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)" />
+        <div class="row">
+          <button id="geocodeBtn" class="primary">חפש כתובת</button>
+          <button id="useMyLocationBtn" class="pill">השתמשי/ה במיקומי</button>
+        </div>
       </div>
 
       <!-- חיפוש אמן + תאריכים -->
-      <div class="row wrap gapped">
-        <input id="artistInput" type="text" placeholder="חפשי/חפש לפי שם אמן/אמנית">
-        <input id="fromDate" type="date" title="מתאריך">
-        <input id="toDate" type="date" title="עד תאריך">
-        <button id="artistBtn" class="ghost">סינון תערוכות</button>
+      <div class="row wrap">
+        <input id="artistInput" type="text" placeholder="חפש/י לפי שם אמן/אמנית" />
+        <input id="startDateInput" type="date" />
+        <input id="endDateInput" type="date" />
+        <button id="filterBtn" class="dark">סינון תערוכות</button>
       </div>
 
-      <!-- רדיוס -->
+      <!-- רדיאוס -->
       <div class="row">
-        <input id="radiusInput" type="range" min="1" max="50" value="10" />
-        <div class="muted"><span id="radiusLabel">10</span> ק״מ (רדיוס)</div>
+        <input id="radiusInput" type="range" min="1" max="50" step="1" value="10" />
+        <div class="muted"><span id="radiusLabel">10</span>: רדיוס (ק״מ)</div>
       </div>
 
-      <div id="status" class="muted">לא נבחר מיקום עדיין</div>
+      <!-- סטטוס מיקום -->
+      <div id="locationStatus" class="muted">לא נבחר מיקום עדיין</div>
     </section>
 
     <!-- מפה -->
@@ -54,38 +62,23 @@
       <div id="map"></div>
     </section>
 
-    <!-- רשימת תערוכות -->
+    <!-- תוצאות -->
     <section class="card">
-      <h2>תערוכות נמצאו</h2>
-      <div id="results"></div>
+      <h2 class="h2">תערוכות נמצאו</h2>
+      <div id="list"></div>
     </section>
   </main>
 
-  <!-- מודל לפרטי תערוכה -->
-  <dialog id="exhibitDialog">
-    <article>
-      <header>
-        <h3 id="dlgTitle"></h3>
-        <button id="dlgClose" aria-label="סגור">×</button>
-      </header>
-      <div id="dlgBody"></div>
-      <footer>
-        <a id="dlgLink" href="#" target="_blank" rel="noopener" class="primary">לאתר/אירוע</a>
-      </footer>
-    </article>
+  <!-- מודאל לתיאור מלא -->
+  <dialog id="exhibitModal">
+    <div class="modal-header">
+      <h3 id="modalTitle"></h3>
+      <button id="modalClose" class="icon">✕</button>
+    </div>
+    <div id="modalBody"></div>
   </dialog>
 
-  <!-- מודל תוצאות חיפוש אמן -->
-  <dialog id="artistDialog">
-    <article>
-      <header>
-        <h3>תערוכות של האמן/ית</h3>
-        <button id="artistDlgClose" aria-label="סגור">×</button>
-      </header>
-      <div id="artistDlgBody"></div>
-    </article>
-  </dialog>
-
-  <script type="module" src="./app.js?v=1"></script>
+  <!-- קוד היישום -->
+  <script src="app.js?v=30"></script>
 </body>
 </html>
