@@ -1,4 +1,4 @@
-/*************** app.js – v40 (full) ****************/
+/*************** app.js – v45 (full) ****************/
 dayjs.locale('he');
 
 // ===== נתוני דמו (ת"א) =====
@@ -86,7 +86,7 @@ function centerOnUser(){
 }
 function setUserLocation(pos){
   userLatLng = {lat:pos.coords.latitude, lng:pos.coords.longitude};
-  $('#locationStatus').textContent = `נבחר מיקום: ${userLatLng.lat.toFixed(4)}, ${userLatLng.lng.toFixed(4)}`;
+  $('#locationStatus')?.textContent = `נבחר מיקום: ${userLatLng.lat.toFixed(4)}, ${userLatLng.lng.toFixed(4)}`;
   if(!userMarker){ userMarker = L.marker(userLatLng,{icon:catIcon}).addTo(map).bindPopup('זה המיקום שלך 🐱'); }
   else { userMarker.setLatLng(userLatLng); }
   map.setView(userLatLng, 13);
@@ -101,6 +101,209 @@ async function geocodeAddress(q){
   if(!arr.length) throw new Error('לא נמצאה כתובת');
   return { lat:+arr[0].lat, lng:+arr[0].lon, label:arr[0].display_name };
 }
+
+// ===== FOLLOW & NOTIFICATIONS =====
+const FOLLOW_KEY='followed_artists', NOTIFIED_KEY='notified_exhibits', NOTIFY_EVERY_MIN=5, ONLY_FOLLOWED_KEY='only_followed';
+const store = {
+  get(k,f){ try{return JSON.parse(localStorage.getItem(k))??f;}catch{return f;} },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+};
+let followedArtists = new Set(store.get(FOLLOW_KEY, []));
+let notifiedExhibits = new Set(store.get(NOTIFIED_KEY, []));
+let onlyFollowed = !!store.get(ONLY_FOLLOWED_KEY, false);
+
+function toast(msg){
+  const el=document.createElement('div');
+  el.textContent=msg;
+  el.style.cssText='position:fixed;inset-inline:0;bottom:16px;margin:auto;background:#111;color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;width:max-content;max-width:90%';
+  document.body.appendChild(el); setTimeout(()=>el.remove(), 2000);
+}
+
+// כפתור "התראות דפדפן" + "❤️ במעקב (N)" + מתג "רק במעקב" – נוצרים אוטומטית
+function ensureTopbarButtons(){
+  const topbar = document.querySelector('header.topbar');
+  if(!topbar) return;
+  // התראות
+  if(!$('#notifyToggle')){
+    const btn=document.createElement('button');
+    btn.id='notifyToggle'; btn.className='pill'; btn.textContent='התראות דפדפן';
+    btn.style.marginInlineStart='8px';
+    btn.onclick = async ()=>{
+      if(!('Notification' in window)) return alert('הדפדפן לא תומך בהתראות');
+      if(Notification.permission==='granted'){ toast('התראות כבר מאופשרות ✔️'); return; }
+      const p = await Notification.requestPermission();
+      toast(p==='granted' ? 'התראות הופעלו 🎉' : 'התראות נדחו');
+    };
+    topbar.appendChild(btn);
+  }
+  // ❤️ במעקב (מונה)
+  if(!$('#followedBtn')){
+    const btn=document.createElement('button');
+    btn.id='followedBtn'; btn.className='secondary';
+    btn.onclick = openFollowedDialog;
+    topbar.appendChild(btn);
+  }
+  updateFollowedCount();
+
+  // מתג "הצג רק אמנים במעקב" ליד הסינון (אם יש אזור סינון)
+  if(!$('#onlyFollowedWrap')){
+    const wrap=document.createElement('div');
+    wrap.id='onlyFollowedWrap';
+    wrap.className='row';
+    wrap.style.margin='8px 0';
+    wrap.innerHTML=`
+      <label class="muted" style="display:flex;gap:6px;align-items:center;cursor:pointer">
+        <input id="onlyFollowed" type="checkbox" ${onlyFollowed?'checked':''}>
+        הצג רק תערוכות של אמנים במעקב
+      </label>
+    `;
+    // ננסה לשים מתחת לקטע הסינון הראשי (לפני המפה). אם אין – נוסיף ל-main.
+    const main = document.querySelector('main .card');
+    (main || document.body).appendChild(wrap);
+    $('#onlyFollowed').addEventListener('change', (e)=>{
+      onlyFollowed = e.target.checked;
+      store.set(ONLY_FOLLOWED_KEY, onlyFollowed);
+      refresh();
+    });
+  }
+}
+function updateFollowedCount(){
+  const btn=$('#followedBtn');
+  if(!btn) return;
+  const n = followedArtists.size;
+  btn.textContent = n ? `❤️ במעקב (${n})` : '❤️ במעקב (0)';
+}
+
+// חלון ניהול אמנים במעקב – נוצר דינמית אם לא קיים
+function ensureFollowedDialog(){
+  if($('#followedDialog')) return;
+  const dlg=document.createElement('dialog');
+  dlg.id='followedDialog';
+  dlg.innerHTML=`
+    <div style="padding:12px 16px;border-bottom:1px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center">
+      <strong>אמנים במעקב</strong>
+      <button id="followedClose" class="icon" style="background:transparent;color:#fff;border:1px solid #333;border-radius:8px;padding:6px 10px">✕</button>
+    </div>
+    <div id="followedBody" style="padding:14px"></div>
+  `;
+  document.body.appendChild(dlg);
+  $('#followedClose').onclick = ()=> dlg.close();
+}
+function openFollowedDialog(){
+  ensureFollowedDialog();
+  const body=$('#followedBody');
+  const list=[...followedArtists].sort((a,b)=>a.localeCompare(b,'he'));
+  if(!list.length){
+    body.innerHTML = `<div class="muted">לא מעוקב/ת אחרי אמנים עדיין. לחצ/י “עקוב/י אחרי …” בכרטיסי התערוכות.</div>`;
+  }else{
+    body.innerHTML = list.map(a=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #2a2a2a;border-radius:10px;padding:8px 10px;margin:6px 0;background:#121317">
+        <div>${a}</div>
+        <div style="display:flex;gap:8px">
+          <button class="ghost" data-remove="${a}">הסר/י מעקב</button>
+        </div>
+      </div>
+    `).join('');
+    body.querySelectorAll('[data-remove]').forEach(b=>{
+      b.onclick=()=>{
+        followedArtists.delete(b.getAttribute('data-remove'));
+        store.set(FOLLOW_KEY, Array.from(followedArtists));
+        updateFollowedCount();
+        refresh(); // יעדכן תגיות/סינון
+        openFollowedDialog(); // רענון החלון
+        toast('הוסר מעקב');
+      };
+    });
+  }
+  $('#followedDialog').showModal();
+}
+
+// הוספת/הסרת מעקב מכרטיס + תגית “במעקב”
+function augmentCards(){
+  document.querySelectorAll('[data-exhibit-id]').forEach(card=>{
+    // כפתור follow
+    if(!card.querySelector('.followArtistBtn')){
+      const artistsStr = card.getAttribute('data-artists')||'';
+      if(artistsStr){
+        const first = artistsStr.split('|')[0].trim();
+        const btn=document.createElement('button');
+        btn.className='pill followArtistBtn';
+        btn.textContent = followedArtists.has(first) ? `מוסר/ת מעקב: ${first}` : `עקוב/י אחרי: ${first}`;
+        btn.onclick = ()=>{
+          if(followedArtists.has(first)){
+            followedArtists.delete(first);
+            toast(`הוסר מעקב אחרי ${first}`);
+            btn.textContent=`עקוב/י אחרי: ${first}`;
+          }else{
+            followedArtists.add(first);
+            toast(`כעת עוקב/ת אחרי ${first}`);
+            btn.textContent=`מוסר/ת מעקב: ${first}`;
+          }
+          store.set(FOLLOW_KEY, Array.from(followedArtists));
+          updateFollowedCount();
+          // עדכון תגים אחרי שינוי
+          updateFollowBadges();
+          if(onlyFollowed) refresh();
+        };
+        (card.querySelector('.actions') || card).appendChild(btn);
+      }
+    }
+  });
+  updateFollowedCount();
+  updateFollowBadges();
+}
+
+// מציג/מסתיר תגית “במעקב” על כרטיסים רלוונטיים
+function updateFollowBadges(){
+  document.querySelectorAll('[data-exhibit-id]').forEach(card=>{
+    const artists = (card.getAttribute('data-artists')||'').split('|').map(s=>s.trim()).filter(Boolean);
+    const followed = artists.some(a=> followedArtists.has(a));
+    let badge = card.querySelector('.follow-badge');
+    if(followed && !badge){
+      badge = document.createElement('span');
+      badge.className='follow-badge';
+      badge.textContent='במעקב';
+      badge.style.cssText='display:inline-block;margin-top:6px;background:#f0ecff;color:#5b4ccc;border:1px solid #d8dafe;border-radius:999px;padding:2px 10px;font-size:.8rem';
+      (card.querySelector('.title') || card.firstElementChild).after(badge);
+    }
+    if(!followed && badge){ badge.remove(); }
+  });
+}
+
+// התראות — כשיש תערוכה פעילה/עתידית לאמנים במעקב
+const isActiveOrFuture = ex => dayjs(ex.endDate).endOf('day').isAfter(dayjs());
+async function notify(title, body, data={}){
+  try{
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if(reg && Notification.permission==='granted'){
+      return reg.showNotification(title, { body, icon:'/icons/icon-192.png', badge:'/icons/icon-192.png', data });
+    }
+  }catch{}
+  if(Notification.permission==='granted'){ new Notification(title, { body, icon:'/icons/icon-192.png', data }); }
+}
+function scanFollowedAndNotify(){
+  if(Notification.permission!=='granted') return;
+  followedArtists = new Set(store.get(FOLLOW_KEY, []));
+  notifiedExhibits = new Set(store.get(NOTIFIED_KEY, []));
+  exhibitions.forEach(ex=>{
+    if(!isActiveOrFuture(ex)) return;
+    if(notifiedExhibits.has(ex.id)) return;
+    const has = (ex.artists||[]).some(a=> followedArtists.has(a));
+    if(!has) return;
+    notify('אמן/ית במעקב מציג/ה 🎨', `${ex.artists.join(', ')} — ${ex.title} (${ex.venue})`, {exhibitId:ex.id});
+    notifiedExhibits.add(ex.id);
+  });
+  store.set(NOTIFIED_KEY, Array.from(notifiedExhibits));
+}
+setInterval(scanFollowedAndNotify, NOTIFY_EVERY_MIN*60*1000);
+
+// האזנה מ-SW (אופציונלי)
+navigator.serviceWorker?.addEventListener?.('message', (e)=>{
+  if(e?.data?.type==='OPEN_EXHIBIT' && e.data.exhibitId){
+    const ex = exhibitions.find(x=>x.id===e.data.exhibitId);
+    if(ex) openModal(ex);
+  }
+});
 
 // ===== רינדור =====
 function renderMarkers(items){
@@ -122,18 +325,20 @@ function renderList(items){
   const list=$('#list'); list.innerHTML='';
   if(!items.length){ list.innerHTML='<div class="muted">לא נמצאו תערוכות בתנאי הסינון.</div>'; return; }
   items.forEach(ex=>{
+    const followed = (ex.artists||[]).some(a=> followedArtists.has(a));
     const card=document.createElement('div');
     card.className='card-item';
-    // data-attributes לכפתור מעקב
+    // data-attributes
     card.setAttribute('data-exhibit-id', ex.id);
     card.setAttribute('data-artists', (ex.artists||[]).join('|'));
     card.innerHTML=`
       <div class="title">${ex.title}</div>
+      ${followed ? `<span class="follow-badge" style="display:inline-block;margin-top:6px;background:#f0ecff;color:#5b4ccc;border:1px solid #d8dafe;border-radius:999px;padding:2px 10px;font-size:.8rem">במעקב</span>` : ``}
       <div class="meta">${ex.venue} · ${ex.address}</div>
       <div class="meta">אמנים: ${ex.artists.join(', ')}</div>
       <div class="meta">תאריכים: ${dayjs(ex.startDate).format('DD.MM.YYYY')} – ${dayjs(ex.endDate).format('DD.MM.YYYY')}</div>
       ${ex._distance? `<div class="meta">מרחק: ${km(ex._distance)} ק״מ</div>` : ''}
-      <div class="actions">
+      <div class="actions" style="display:flex;gap:8px;margin-top:8px">
         <span class="link" data-id="${ex.id}">קרא/י עוד</span>
         <span class="link" data-pan="${ex.id}">הצג/י על המפה</span>
       </div>
@@ -142,7 +347,7 @@ function renderList(items){
     card.querySelector('[data-pan]').onclick = ()=>map.setView([ex.lat,ex.lng],15);
     list.appendChild(card);
   });
-  augmentCards(); // מוסיף כפתורי "עקוב/י אחרי"
+  augmentCards();
 }
 
 function openModal(ex){
@@ -155,7 +360,7 @@ function openModal(ex){
   `;
   $('#exhibitModal').showModal();
 }
-$('#modalClose').onclick = ()=>$('#exhibitModal').close();
+$('#modalClose')?.addEventListener('click', ()=>$('#exhibitModal').close());
 
 // ===== סינון ותרענון =====
 function currentFilters(){
@@ -175,6 +380,9 @@ function refresh(){
       (ex.artists||[]).some(a=>a.toLowerCase().includes(artist))
     );
   }
+  if(onlyFollowed){
+    items = items.filter(ex => (ex.artists||[]).some(a=> followedArtists.has(a)));
+  }
   if(userLatLng){
     items = items.map(ex=>({...ex, _distance:haversine(userLatLng,{lat:ex.lat,lng:ex.lng})}))
                  .filter(ex=> ex._distance/1000 <= radiusKm)
@@ -182,128 +390,37 @@ function refresh(){
   }
   renderMarkers(items);
   renderList(items);
-  // בדיקת התראות אחרי כל רענון
   scanFollowedAndNotify();
 }
 
 // ===== אירועי UI =====
 $('#geocodeBtn')?.addEventListener('click', async ()=>{
-  const q = $('#addressInput').value.trim();
+  const q = $('#addressInput')?.value?.trim();
   if(!q){ alert('הקלד/י כתובת'); return; }
   try{
-    $('#locationStatus').textContent = 'מחפש כתובת…';
+    $('#locationStatus') && ($('#locationStatus').textContent = 'מחפש כתובת…');
     const loc = await geocodeAddress(q);
     userLatLng = {lat:loc.lat, lng:loc.lng};
     if(!userMarker) userMarker = L.marker(userLatLng,{icon:catIcon}).addTo(map).bindPopup('המיקום שבחרת 🐱');
     else userMarker.setLatLng(userLatLng);
     map.setView(userLatLng, 13);
-    $('#locationStatus').textContent = `נבחר מיקום: ${loc.label}`;
+    $('#locationStatus') && ($('#locationStatus').textContent = `נבחר מיקום: ${loc.label}`);
     refresh();
-  }catch{ alert('לא נמצאה הכתובת'); $('#locationStatus').textContent='לא נבחר מיקום עדיין'; }
+  }catch{ alert('לא נמצאה הכתובת'); $('#locationStatus') && ($('#locationStatus').textContent='לא נבחר מיקום עדיין'); }
 });
 $('#useMyLocationBtn')?.addEventListener('click', centerOnUser);
 $('#filterBtn')?.addEventListener('click', refresh);
-$('#radiusInput')?.addEventListener('input', e=>{ $('#radiusLabel').textContent=e.target.value; });
+$('#radiusInput')?.addEventListener('input', e=>{ $('#radiusLabel') && ($('#radiusLabel').textContent=e.target.value); });
 ['artistInput','startDateInput','endDateInput'].forEach(id=>{
   $('#'+id)?.addEventListener('change', refresh);
   $('#'+id)?.addEventListener('keyup', e=>{ if(e.key==='Enter') refresh(); });
 });
 
-// ===== מעקב אמנים + התראות =====
-const FOLLOW_KEY='followed_artists', NOTIFIED_KEY='notified_exhibits', NOTIFY_EVERY_MIN=5;
-const store = {
-  get(k,f){ try{return JSON.parse(localStorage.getItem(k))??f;}catch{return f;} },
-  set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
-};
-let followedArtists = new Set(store.get(FOLLOW_KEY, []));
-let notifiedExhibits = new Set(store.get(NOTIFIED_KEY, []));
-
-// כפתור התראות בסרגל
-(function ensureNotifyToggle(){
-  if($('#notifyToggle')) return;
-  const host = document.querySelector('header.topbar .brand')?.parentElement || document.querySelector('header.topbar');
-  const btn = document.createElement('button');
-  btn.id='notifyToggle'; btn.className='pill'; btn.textContent='התראות דפדפן';
-  btn.style.marginInlineStart='8px';
-  btn.onclick = async ()=>{
-    if(!('Notification' in window)) return alert('הדפדפן לא תומך בהתראות');
-    if(Notification.permission==='granted'){ toast('התראות כבר מאופשרות ✔️'); return; }
-    const p = await Notification.requestPermission();
-    toast(p==='granted' ? 'התראות הופעלו 🎉' : 'התראות נדחו');
-  };
-  host?.appendChild(btn);
-})();
-
-function toast(msg){
-  const el=document.createElement('div');
-  el.textContent=msg;
-  el.style.cssText='position:fixed;inset-inline:0;bottom:16px;margin:auto;background:#111;color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;width:max-content;max-width:90%';
-  document.body.appendChild(el); setTimeout(()=>el.remove(), 2000);
-}
-
-// הוספת כפתור "עקוב/י אחרי" לכל כרטיס
-function augmentCards(){
-  document.querySelectorAll('[data-exhibit-id]').forEach(card=>{
-    if(card.querySelector('.followArtistBtn')) return;
-    const artistsStr = card.getAttribute('data-artists')||'';
-    if(!artistsStr) return;
-    const first = artistsStr.split('|')[0].trim();
-    const btn=document.createElement('button');
-    btn.className='pill followArtistBtn';
-    btn.textContent = followedArtists.has(first) ? `מוסר/ת מעקב: ${first}` : `עקוב/י אחרי: ${first}`;
-    btn.onclick = ()=>{
-      if(followedArtists.has(first)){ followedArtists.delete(first); toast(`הוסר מעקב אחרי ${first}`); btn.textContent=`עקוב/י אחרי: ${first}`; }
-      else { followedArtists.add(first); toast(`כעת עוקב/ת אחרי ${first}`); btn.textContent=`מוסר/ת מעקב: ${first}`; }
-      store.set(FOLLOW_KEY, Array.from(followedArtists));
-    };
-    // הוספה לסוף הכרטיס
-    (card.querySelector('.actions') || card).appendChild(btn);
-  });
-}
-
-// בדיקה אם תערוכה פעילה/עתידית
-const isActiveOrFuture = ex => dayjs(ex.endDate).endOf('day').isAfter(dayjs());
-
-// התראה דרך SW אם קיים, אחרת Notification רגיל
-async function notify(title, body, data={}){
-  try{
-    const reg = await navigator.serviceWorker?.getRegistration();
-    if(reg && Notification.permission==='granted'){
-      return reg.showNotification(title, { body, icon:'/icons/icon-192.png', badge:'/icons/icon-192.png', data });
-    }
-  }catch{}
-  if(Notification.permission==='granted'){ new Notification(title, { body, icon:'/icons/icon-192.png', data }); }
-}
-
-function scanFollowedAndNotify(){
-  if(Notification.permission!=='granted') return;
-  followedArtists = new Set(store.get(FOLLOW_KEY, []));
-  notifiedExhibits = new Set(store.get(NOTIFIED_KEY, []));
-
-  exhibitions.forEach(ex=>{
-    if(!isActiveOrFuture(ex)) return;
-    const has = (ex.artists||[]).some(a=> followedArtists.has(a));
-    if(!has) return;
-    if(notifiedExhibits.has(ex.id)) return;
-    notify('אמן/ית במעקב מציג/ה 🎨', `${ex.artists.join(', ')} — ${ex.title} (${ex.venue})`, {exhibitId:ex.id});
-    notifiedExhibits.add(ex.id);
-  });
-  store.set(NOTIFIED_KEY, Array.from(notifiedExhibits));
-}
-setInterval(scanFollowedAndNotify, NOTIFY_EVERY_MIN*60*1000);
-
-// האזנה מה-SW ללחיצה על התראה (אופציונלי, אם הוספת sw.js)
-navigator.serviceWorker?.addEventListener?.('message', (e)=>{
-  if(e?.data?.type==='OPEN_EXHIBIT' && e.data.exhibitId){
-    const ex = exhibitions.find(x=>x.id===e.data.exhibitId);
-    if(ex) openModal(ex);
-  }
-});
-
 // ===== Init =====
 function init(){
   initMap();
-  $('#modalClose')?.addEventListener('click', ()=>$('#exhibitModal').close());
+  ensureTopbarButtons();
+  ensureFollowedDialog();
   refresh();
 }
 init();
