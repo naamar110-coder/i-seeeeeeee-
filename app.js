@@ -1,8 +1,7 @@
-/*************** app.js – v50 (full, with image carousel) ****************/
+/*************** app.js – v51 (carousel fallback + logging) ****************/
 dayjs.locale('he');
 
-// ===== נתוני דמו (ת"א) =====
-// הוספתי לכל תערוכה שדה images: [] עם תמונות הזמנה/מבט בתערוכה
+// ===== נתוני דמו (ת"א) עם images לכל תערוכה =====
 const exhibitions = [
   {
     id:'tlv-01',
@@ -134,7 +133,6 @@ function initMap(){
   L.control.zoom({position:'topleft'}).addTo(map);
   markersLayer = L.layerGroup().addTo(map);
 
-  // כפתור מיקום 🐱
   const LocateCtrl = L.Control.extend({
     onAdd(){
       const b=L.DomUtil.create('button','leaflet-bar');
@@ -187,7 +185,6 @@ function toast(msg){
 function ensureTopbarButtons(){
   const topbar = document.querySelector('header.topbar');
   if(!topbar) return;
-  // התראות
   if(!$('#notifyToggle')){
     const btn=document.createElement('button');
     btn.id='notifyToggle'; btn.className='pill'; btn.textContent='התראות דפדפן';
@@ -200,7 +197,6 @@ function ensureTopbarButtons(){
     };
     topbar.appendChild(btn);
   }
-  // ❤️ במעקב (מונה)
   if(!$('#followedBtn')){
     const btn=document.createElement('button');
     btn.id='followedBtn'; btn.className='secondary';
@@ -209,7 +205,6 @@ function ensureTopbarButtons(){
   }
   updateFollowedCount();
 
-  // מתג "רק אמנים במעקב"
   if(!$('#onlyFollowedWrap')){
     const wrap=document.createElement('div');
     wrap.id='onlyFollowedWrap'; wrap.className='row'; wrap.style.margin='8px 0';
@@ -311,7 +306,7 @@ function updateFollowBadges(){
   });
 }
 
-// התראות
+// ===== התראות =====
 const isActiveOrFuture = ex => dayjs(ex.endDate).endOf('day').isAfter(dayjs());
 async function notify(title, body, data={}){
   try{
@@ -390,14 +385,22 @@ function renderList(items){
 
 // ===== מודאל + קרוסלת תמונות =====
 let currentCarousel = { idx:0, imgs:[], exId:null };
+const DEFAULT_IMAGES = [
+  'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=1600',
+  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600',
+  'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=1600'
+];
 
 function openModal(ex){
   $('#modalTitle').textContent = `${ex.title} — ${ex.venue}`;
 
-  const imgs = Array.isArray(ex.images) && ex.images.length ? ex.images : [];
+  // אם אין תמונות בתערוכה – נשתמש בברירת מחדל
+  const imgs = (Array.isArray(ex.images) && ex.images.length) ? ex.images : DEFAULT_IMAGES;
+  console.log('Gallery images for', ex.id, imgs); // עוזר לבדוק בקונסול
+
   currentCarousel = { idx:0, imgs:imgs, exId:ex.id };
 
-  const gallery = imgs.length ? `
+  const gallery = `
     <div id="carousel" style="position:relative;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;margin:10px 0">
       <img id="carouselImg" src="${imgs[0]}" alt="הזמנה/תמונה" style="width:100%;display:block;max-height:60vh;object-fit:cover">
       <button id="carPrev" aria-label="הקודם" style="position:absolute;top:50%;inset-inline-start:8px;transform:translateY(-50%);background:#0009;color:#fff;border:0;border-radius:10px;padding:8px 10px;cursor:pointer">◀</button>
@@ -409,7 +412,7 @@ function openModal(ex){
     <div id="thumbs" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:6px 0 10px">
       ${imgs.map((src,i)=>`<img data-thumb="${i}" src="${src}" alt="" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:${i===0?'2px solid #8b5cf6':'1px solid #2a2a2a'};cursor:pointer;background:#111">`).join('')}
     </div>
-  ` : '';
+  `;
 
   $('#modalBody').innerHTML = `
     <div class="muted">${ex.address}</div>
@@ -419,23 +422,18 @@ function openModal(ex){
     ${gallery}
   `;
 
-  // חיבור אירועי קרוסלה אם יש תמונות
-  if (imgs.length){
-    $('#carPrev').onclick = ()=> shiftCarousel(-1);
-    $('#carNext').onclick = ()=> shiftCarousel(+1);
-    $('#carDots')?.querySelectorAll('[data-dot]').forEach(d=> d.onclick = ()=> goTo(+d.getAttribute('data-dot')));
-    $('#thumbs')?.querySelectorAll('[data-thumb]').forEach(t=> t.onclick = ()=> goTo(+t.getAttribute('data-thumb')));
+  $('#carPrev').onclick = ()=> shiftCarousel(-1);
+  $('#carNext').onclick = ()=> shiftCarousel(+1);
+  $('#carDots')?.querySelectorAll('[data-dot]').forEach(d=> d.onclick = ()=> goTo(+d.getAttribute('data-dot')));
+  $('#thumbs')?.querySelectorAll('[data-thumb]').forEach(t=> t.onclick = ()=> goTo(+t.getAttribute('data-thumb')));
 
-    // החלקה בנייד
-    const imgEl = $('#carouselImg');
-    let sx=0, dx=0;
-    imgEl.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; }, {passive:true});
-    imgEl.addEventListener('touchmove',  (e)=>{ dx = e.touches[0].clientX - sx; }, {passive:true});
-    imgEl.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>40){ shiftCarousel(dx<0?+1:-1); } sx=dx=0; });
+  const imgEl = $('#carouselImg');
+  let sx=0, dx=0;
+  imgEl.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; }, {passive:true});
+  imgEl.addEventListener('touchmove',  (e)=>{ dx = e.touches[0].clientX - sx; }, {passive:true});
+  imgEl.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>40){ shiftCarousel(dx<0?+1:-1); } sx=dx=0; });
 
-    // חיצים במקלדת
-    document.addEventListener('keydown', onKeyCarousel);
-  }
+  document.addEventListener('keydown', onKeyCarousel);
 
   $('#exhibitModal').showModal();
 }
@@ -449,7 +447,6 @@ function onKeyCarousel(e){
   if (e.key === 'ArrowRight') shiftCarousel(+1);
   if (e.key === 'ArrowLeft')  shiftCarousel(-1);
 }
-
 function shiftCarousel(delta){
   const {imgs} = currentCarousel;
   if (!imgs.length) return;
@@ -467,7 +464,6 @@ function goTo(i){
     imgEl.style.opacity='0';
     setTimeout(()=>{ imgEl.src = imgs[i]; imgEl.onload=()=>{imgEl.style.opacity='1';}; }, 120);
   }
-  // עדכון נקודות ותʼמונות
   $('#carDots')?.querySelectorAll('[data-dot]').forEach((d,idx)=>{
     d.style.background = idx===i ? '#fff' : '#666';
   });
@@ -476,7 +472,7 @@ function goTo(i){
   });
 }
 
-// ===== סינון ותרענון =====
+// ===== סינון/רענון =====
 function currentFilters(){
   return {
     artist: ($('#artistInput')?.value||'').trim().toLowerCase(),
@@ -533,8 +529,12 @@ $('#radiusInput')?.addEventListener('input', e=>{ $('#radiusLabel') && ($('#radi
 // ===== Init =====
 function init(){
   initMap();
-  ensureTopbarButtons();
-  ensureFollowedDialog();
+  // כפתורי טופ־בר/מעקב/התראות
+  (function ensureTopbar(){ 
+    if(!document.querySelector('header.topbar')) return;
+    ensureTopbarButtons(); 
+    ensureFollowedDialog();
+  })();
   refresh();
 }
 init();
