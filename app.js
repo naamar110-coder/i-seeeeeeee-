@@ -1,3 +1,58 @@
+// ---- seed fallback, in case EXHIBITIONS wasn't defined ----
+window.EXHIBITIONS = window.EXHIBITIONS ?? [
+  {
+    id: "ta-1",
+    title: "אור-צל – תערוכה קבוצתית",
+    artists: ["יעקב אגם", "מיכל רובינשטיין"],
+    venue: "מוזיאון תל אביב לאמנות",
+    address: "שד' שאול המלך 27, תל אביב",
+    lat: 32.0776, lon: 34.7890,
+    startDate: "2025-09-01", endDate: "2025-10-31",
+    hours: "א׳-ה׳ 10:00-18:00, ו׳ 10:00-14:00",
+    price: "₪55",
+    description: "אוסף עבודות חדש על יחסי אור וחומר.",
+    image: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b"
+  },
+  {
+    id: "ta-2",
+    title: "הקו הדק",
+    artists: ["אורית כהן"],
+    venue: "גלריה גורדון",
+    address: "הירקון 95, תל אביב",
+    lat: 32.0853, lon: 34.7732,
+    startDate: "2025-09-10", endDate: "2025-10-15",
+    hours: "א׳-ה׳ 11:00-19:00, ו׳ 10:00-14:00",
+    price: "כניסה חופשית",
+    description: "רישומים מינימליסטיים על גבול המופשט.",
+    image: "https://images.unsplash.com/photo-1520697222862-51283cbcadc0"
+  },
+  {
+    id: "ta-3",
+    title: "ים וזמן",
+    artists: ["נועה ברק", "רן שלו"],
+    venue: "CCA – המרכז לאמנות עכשווית",
+    address: "צ׳לנוב 2, תל אביב",
+    lat: 32.0623, lon: 34.7819,
+    startDate: "2025-08-25", endDate: "2025-11-05",
+    hours: "א׳-ה׳ 12:00-20:00",
+    price: "₪35",
+    description: "וידאו-ארט ומיצב על זיכרון ומרחב.",
+    image: "https://images.unsplash.com/photo-1530023367847-a683933f4179"
+  },
+  {
+    id: "ta-4",
+    title: "תל-אביב המצוירת",
+    artists: ["דנה שלו"],
+    venue: "גלריה נגא",
+    address: "אחווה 60, תל אביב",
+    lat: 32.0615, lon: 34.7699,
+    startDate: "2025-09-05", endDate: "2025-10-20",
+    hours: "א׳-ה׳ 12:00-18:00, ו׳ 11:00-14:00",
+    price: "כניסה חופשית",
+    description: "איור אורבני ומפות סיפוריות של העיר.",
+    image: "https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1"
+  }
+];
 /************************************************
  * Exhibitions – App.js (v210)
  * מפת Leaflet + כתובת/מיקום/רדיוס + חיפוש אמן ותאריכים
