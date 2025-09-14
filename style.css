@@ -1,80 +1,70 @@
 :root{
-  --bg:#0e0e10; --fg:#f5f7fb; --muted:#a7adb7; --accent:#a78bfa;
-  --card:#ffffff; --border:#e9e9ef; --ink:#141416;
+  --bg:#0e0e10; --fg:#f5f7fb; --card:#16171a; --muted:#a7adb9;
+  --accent:#a78bfa; --accent-2:#8b5cf6; --border:#25262b;
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0; font-family:'Assistant',system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:#f6f7fb; color:#141416;
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:'Assistant',system-ui,Segoe UI,Arial,Helvetica,sans-serif;
 }
 
-/* טופ־בר */
 header.topbar{
   position:sticky; top:0; z-index:10;
   display:flex; justify-content:space-between; align-items:center;
-  gap:12px; padding:12px 16px; background:#0e0e10; color:#f5f7fb;
-  border-bottom:1px solid #1d1e23; backdrop-filter:blur(8px);
+  padding:12px 16px; background:#0e0e10cc; backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
 }
-.topbar .logo{font-weight:700}
-.topbar .tagline{opacity:.75}
+.brand{display:flex; gap:10px; align-items:center}
+.logo{font-weight:800; letter-spacing:.5px}
+.tagline{color:var(--muted); font-size:.9rem}
 
-/* פריסת תוכן */
-main{max-width:960px; margin:16px auto; padding:0 12px}
+main{max-width:980px; margin:16px auto; padding:0 12px}
 .card{
   background:var(--card); border:1px solid var(--border);
-  border-radius:14px; padding:16px; box-shadow:0 1px 0 rgba(10,10,20,.03);
+  border-radius:14px; padding:14px; margin:14px 0;
 }
-h1{margin:0 0 10px; font-size:1.4rem}
-h2{margin:0 0 12px; font-size:1.2rem}
+.h1{margin:8px 0 10px}
+.h2{margin:0 0 8px}
 
-.row{display:flex; gap:8px; align-items:center}
+.row{display:flex; align-items:center; gap:8px}
 .wrap{flex-wrap:wrap}
-.gapped input{min-width:160px}
 
 input[type=text], input[type=date]{
-  flex:1; min-width:240px;
-  padding:12px; border:1px solid var(--border); border-radius:12px;
-  background:#fff; outline:none;
+  width:100%; max-width:420px; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--border); background:#0f1013; color:var(--fg);
 }
-input[type=text]:focus, input[type=date]:focus{border-color:#c7c7ff}
 
 button{
   border:0; border-radius:12px; padding:10px 14px; cursor:pointer;
-  font-weight:600;
+  background:#2b2c31; color:#fff;
 }
-button.primary{background:#111; color:#fff}
-button.secondary{background:#a78bfa; color:#fff}
-button.ghost{background:#fff; color:#111; border:1px solid var(--border)}
+button.primary{background:var(--accent-2)}
+button.pill{background:#3b3c42}
+button.dark{background:#1f1f24}
 button:hover{opacity:.9}
 
-.muted{color:#6b7280; font-size:.95rem}
-#map{height:360px; border-radius:12px; border:1px solid var(--border)}
+.muted{color:var(--muted); font-size:.9rem}
 
-/* כרטיס תערוכה */
-.exhibit{
-  border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px;
-  display:flex; gap:10px; align-items:flex-start; background:#fff;
+#map{height:340px; border-radius:12px; border:1px solid var(--border)}
+
+#list{display:grid; gap:10px}
+.card-item{
+  background:#121317; border:1px solid var(--border); border-radius:12px; padding:12px;
 }
-.exhibit .meta{font-size:.9rem; color:#555}
-.exhibit .title{font-weight:700; margin-bottom:4px}
-.exhibit .pill{display:inline-block; padding:2px 8px; border-radius:999px; background:#f0ecff; color:#5b4ccc; font-size:.8rem}
+.card-item .title{font-weight:700}
+.card-item .meta{color:var(--muted); font-size:.9rem}
+.card-item .actions{display:flex; gap:8px; margin-top:8px}
+.link{color:#c4b5fd; text-decoration:underline; cursor:pointer}
 
-/* דיאלוג */
 dialog{
-  border:none; border-radius:14px; padding:0; width:min(720px,96vw);
-  box-shadow:0 24px 72px rgba(0,0,0,.28)
+  width:min(760px,92vw); border:1px solid var(--border); border-radius:16px;
+  background:#121317; color:var(--fg); padding:0;
 }
-dialog::backdrop{background:rgba(0,0,0,.35)}
-dialog > article{padding:0}
-dialog header{
+.modal-header{
   display:flex; justify-content:space-between; align-items:center;
-  padding:14px 16px; border-bottom:1px solid var(--border); background:#fbfbfe;
+  padding:12px 14px; border-bottom:1px solid var(--border);
 }
-dialog #dlgClose, dialog #artistDlgClose{
-  background:transparent; font-size:20px; line-height:1; padding:6px 10px; border-radius:8px; border:1px solid var(--border)
-}
-dialog #dlgBody, dialog #artistDlgBody{padding:16px}
-dialog footer{display:flex; justify-content:flex-end; gap:8px; padding:14px 16px; border-top:1px solid var(--border); background:#fbfbfe}
-dialog a.primary{background:#111; color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none}
+#modalBody{padding:14px}
+button.icon{background:transparent; font-size:18px}
