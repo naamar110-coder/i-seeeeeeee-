@@ -6,24 +6,22 @@
   <title>i_seeeeeeee — Exhibitions</title>
 
   <!-- גופן -->
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap" rel="stylesheet"/>
 
   <!-- Leaflet (מפה) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- העיצוב שלנו -->
-  <link rel="stylesheet" href="style.css?v=3" />
+  <!-- העיצוב -->
+  <link rel="stylesheet" href="style.css?v=105" />
 </head>
 <body>
-
-  <!-- טופ־בר -->
+  <!-- טופ-בר -->
   <header class="topbar">
     <div class="brand">
       <div class="logo">i_seeeeeeee</div>
-      <div class="tagline">More art every day</div>
+      <div class="tagline">תערוכות קרובות אלייך</div>
     </div>
-
     <div class="auth">
       <button id="loginBtn" class="secondary">התחברות</button>
       <button id="logoutBtn" class="secondary" style="display:none">התנתקות</button>
@@ -31,38 +29,30 @@
   </header>
 
   <main class="content" id="app">
-    <!-- בקרי פעולה כלליים -->
-    <section class="controls">
-      <button id="addToCalendarBtn" class="accent">הוסף ליומן</button>
-      <button id="openMapsBtn" class="primary">פתח מפות</button>
-      <button id="shareBtn" class="secondary">שיתוף</button>
-      <button id="submitEventBtn" class="secondary">הוסף אירוע</button>
+    <!-- בחירת מיקום ורדיוס -->
+    <section class="card" id="locCard">
+      <h3>נאתר תערוכות סביבך</h3>
+      <div class="row wrap">
+        <input id="addressInput" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)" />
+        <button id="geocodeBtn" class="primary">חפש כתובת</button>
+        <button id="useMyLocationBtn" class="accent">השתמש/י במיקומי</button>
+      </div>
+      <div class="row wrap">
+        <label for="radiusInput">רדיוס (ק״מ):</label>
+        <input id="radiusInput" type="range" min="2" max="50" value="10" />
+        <span id="radiusVal">10</span>
+      </div>
+      <div class="muted small" id="chosenPlace">לא נבחר מיקום עדיין</div>
     </section>
 
-    <!-- רשימת תוצאות / כרטיס דוגמה -->
-    <section id="results">
-      <article class="card" id="exampleEvent"
-        data-title="תערוכה: קווים של אור"
-        data-start="2025-09-20T19:00:00"
-        data-end="2025-09-20T21:00:00"
-        data-location="המוזיאון תל אביב"
-        data-lat="32.0779"
-        data-lng="34.7860">
-        <h3>תערוכה: קווים של אור</h3>
-        <p class="muted">המוזיאון תל אביב · 20/09 19:00</p>
-        <div class="row">
-          <button class="accent"   data-action="add-to-calendar">הוסף ליומן</button>
-          <button class="primary"  data-action="open-maps">נווט</button>
-          <button class="secondary" data-action="share">שיתוף</button>
-        </div>
-      </article>
-    </section>
+    <!-- רשימת תערוכות -->
+    <section id="results"></section>
 
-    <!-- המפה -->
+    <!-- מפה -->
     <div id="map" aria-label="מפה"></div>
   </main>
 
-  <!-- הסקריפט שלנו -->
-  <script type="module" src="app.js?v=3"></script>
+  <!-- סקריפט האפליקציה -->
+  <script type="module" src="app.js?v=105"></script>
 </body>
 </html>
