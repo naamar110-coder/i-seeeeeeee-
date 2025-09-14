@@ -2,25 +2,43 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>i_seeeeeeee — Exhibitions</title>
-
-  <!-- גופן -->
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;800&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>i_seeeeeeee · תערוכות קרובות אלייך</title>
 
   <!-- Leaflet (מפה) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- העיצוב -->
-  <link rel="stylesheet" href="style.css?v=105" />
+  <!-- פונטים ועיצוב בסיסי -->
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=15">
+  <style>
+    /* חיוני כדי שהמפה תיראה */
+    #map{height:320px;border-radius:12px;border:1px solid #e9e9ee;background:#f5f5f8}
+    body{margin:0;font-family:'Assistant',system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    header.topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;
+      padding:12px 16px;background:#0e0e10;color:#f5f7fb;border-bottom:1px solid #1a1a23}
+    main{max-width:960px;margin:16px auto;padding:0 16px}
+    .card{background:#fff;border:1px solid #eee;border-radius:12px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.05);margin-bottom:12px}
+    .row{display:flex;gap:8px;align-items:center}
+    .wrap{flex-wrap:wrap}
+    input[type=text]{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px}
+    .muted{color:#6b7280}
+    .small{font-size:.9rem}
+    button{border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
+    button.primary{background:#111827;color:#fff}
+    button.secondary{background:#eef2ff;color:#111827}
+    button.accent{background:#a78bfa;color:#fff}
+    #results img{width:100%;height:180px;object-fit:cover;border-radius:10px;border:1px solid #eee}
+    section.block{margin:20px 0}
+    hr{border:none;border-top:1px solid #eee}
+  </style>
 </head>
 <body>
-  <!-- טופ-בר -->
   <header class="topbar">
     <div class="brand">
       <div class="logo">i_seeeeeeee</div>
-      <div class="tagline">תערוכות קרובות אלייך</div>
+      <div class="tagline muted small">תערוכות קרובות אלייך</div>
     </div>
     <div class="auth">
       <button id="loginBtn" class="secondary">התחברות</button>
@@ -28,31 +46,46 @@
     </div>
   </header>
 
-  <main class="content" id="app">
-    <!-- בחירת מיקום ורדיוס -->
-    <section class="card" id="locCard">
-      <h3>נאתר תערוכות סביבך</h3>
-      <div class="row wrap">
+  <main>
+    <!-- בלוק חיפוש/מיקום -->
+    <section class="card">
+      <h2 style="margin:0 0 12px">נאתר תערוכות סביבך</h2>
+      <div class="row wrap" style="gap:10px">
         <input id="addressInput" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)" />
         <button id="geocodeBtn" class="primary">חפש כתובת</button>
         <button id="useMyLocationBtn" class="accent">השתמש/י במיקומי</button>
       </div>
-      <div class="row wrap">
-        <label for="radiusInput">רדיוס (ק״מ):</label>
-        <input id="radiusInput" type="range" min="2" max="50" value="10" />
-        <span id="radiusVal">10</span>
+
+      <div class="row" style="gap:10px;margin-top:12px;align-items:center">
+        <div class="muted">רדייוס (ק״מ):</div>
+        <input id="radiusInput" type="range" min="1" max="50" step="1" value="10" style="flex:1" />
+        <div id="radiusVal">10</div>
       </div>
-      <div class="muted small" id="chosenPlace">לא נבחר מיקום עדיין</div>
+
+      <div class="muted small" style="margin-top:8px">
+        <span id="chosenPlace">לא נבחר מיקום עדיין</span>
+      </div>
     </section>
 
-    <!-- רשימת תערוכות -->
-    <section id="results"></section>
-
     <!-- מפה -->
-    <div id="map" aria-label="מפה"></div>
+    <section class="block">
+      <div id="map"></div>
+    </section>
+
+    <!-- תוצאות קרובות -->
+    <section class="block">
+      <h3 style="margin:0 0 8px">תערוכות קרובות</h3>
+      <div id="results"></div>
+    </section>
+
+    <!-- רשימת תל אביב -->
+    <section class="block">
+      <h3 style="margin:14px 0 8px">כל התערוכות בתל אביב</h3>
+      <ul id="telAvivList" style="padding:0;margin:0"></ul>
+    </section>
   </main>
 
-  <!-- סקריפט האפליקציה -->
-  <script type="module" src="app.js?v=105"></script>
+  <!-- הסקריפט שלך: -->
+  <script type="module" src="app.js?v=15"></script>
 </body>
 </html>
