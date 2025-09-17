@@ -1,97 +1,32 @@
-/*************** app.js – v50 (full, with image carousel) ****************/
+/*************** app.js – v45 (full) ****************/
 dayjs.locale('he');
 
 // ===== נתוני דמו (ת"א) =====
-// הוספתי לכל תערוכה שדה images: [] עם תמונות הזמנה/מבט בתערוכה
 const exhibitions = [
-  {
-    id:'tlv-01',
-    title:'צללים על הים',
-    artists:['נועה ברוש'],
-    venue:'מוזיאון תל אביב לאמנות',
-    address:'שד׳ שאול המלך 27, תל אביב',
-    city:'תל אביב', lat:32.07759, lng:34.78934,
+  { id:'tlv-01', title:'צללים על הים', artists:['נועה ברוש'], venue:'מוזיאון תל אביב לאמנות',
+    address:'שד׳ שאול המלך 27, תל אביב', city:'תל אביב', lat:32.07759, lng:34.78934,
     startDate:'2025-09-10', endDate:'2025-12-20',
-    description:'מבט עכשווי על צילום ים-תיכוני, בין חוף עירוני לתיעוד אישי.',
-    images:[
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600',
-      'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600',
-      'https://images.unsplash.com/photo-1482192505345-5655af888cc4?w=1600'
-    ]
-  },
-  {
-    id:'tlv-02',
-    title:'גופים בתנועה',
-    artists:['יונתן כץ','תמר גל'],
-    venue:'הגלריה האוניברסיטאית – אונ׳ תל אביב',
-    address:'חיים לבנון 55, תל אביב',
-    city:'תל אביב', lat:32.1149, lng:34.8043,
+    description:'מבט עכשווי על צילום ים-תיכוני, בין חוף עירוני לתיעוד אישי.' },
+  { id:'tlv-02', title:'גופים בתנועה', artists:['יונתן כץ','תמר גל'], venue:'הגלריה האוניברסיטאית – אונ׳ תל אביב',
+    address:'חיים לבנון 55, תל אביב', city:'תל אביב', lat:32.1149, lng:34.8043,
     startDate:'2025-09-01', endDate:'2025-10-30',
-    description:'פיסול, וידאו ורישום סביב תנועה אנושית במרחב.',
-    images:[
-      'https://images.unsplash.com/photo-1520975916090-3105956dac38?w=1600',
-      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1600'
-    ]
-  },
-  {
-    id:'tlv-03',
-    title:'בין קירות',
-    artists:['גיא שלו'],
-    venue:'בית בנימיני – מרכז לקרמיקה',
-    address:'העמל 17, תל אביב',
-    city:'תל אביב', lat:32.0629, lng:34.7777,
+    description:'פיסול, וידאו ורישום סביב תנועה אנושית במרחב.' },
+  { id:'tlv-03', title:'בין קירות', artists:['גיא שלו'], venue:'בית בנימיני – מרכז לקרמיקה',
+    address:'העמל 17, תל אביב', city:'תל אביב', lat:32.0629, lng:34.7777,
     startDate:'2025-08-20', endDate:'2025-11-10',
-    description:'קרמיקה אדריכלית: מרקמים, זיכרון וחומר.',
-    images:[
-      'https://images.unsplash.com/photo-1508919801845-fc2ae1bc2a28?w=1600',
-      'https://images.unsplash.com/photo-1616401784841-05c8ac05c6cd?w=1600',
-      'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=1600',
-      'https://images.unsplash.com/photo-1582582621959-48d917cb8886?w=1600'
-    ]
-  },
-  {
-    id:'tlv-04',
-    title:'קו ראשון',
-    artists:['מאיה לוי'],
-    venue:'גלריה נגא',
-    address:'אילת 60, תל אביב',
-    city:'תל אביב', lat:32.0589, lng:34.7688,
+    description:'קרמיקה אדריכלית: מרקמים, זיכרון וחומר.' },
+  { id:'tlv-04', title:'קו ראשון', artists:['מאיה לוי'], venue:'גלריה נגא',
+    address:'אילת 60, תל אביב', city:'תל אביב', lat:32.0589, lng:34.7688,
     startDate:'2025-09-12', endDate:'2025-10-25',
-    description:'ציור עכשווי מינימליסטי, שכבות של קווים ושקט.',
-    images:[
-      'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=1600',
-      'https://images.unsplash.com/photo-1509413432270-246b6d18038b?w=1600'
-    ]
-  },
-  {
-    id:'tlv-05',
-    title:'עיר/צליל',
-    artists:['איתי רז'],
-    venue:'CCA – המרכז לאמנות עכשווית',
-    address:'תל גיבורים 5, תל אביב',
-    city:'תל אביב', lat:32.0596, lng:34.7847,
+    description:'ציור עכשווי מינימליסטי, שכבות של קווים ושקט.' },
+  { id:'tlv-05', title:'עיר/צליל', artists:['איתי רז'], venue:'CCA – המרכז לאמנות עכשווית',
+    address:'תל גיבורים 5, תל אביב', city:'תל אביב', lat:32.0596, lng:34.7847,
     startDate:'2025-09-05', endDate:'2025-11-30',
-    description:'מיצב סאונד-וידאו על הקצב האורבני והאזנה כפעולה.',
-    images:[
-      'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=1600',
-      'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=1600',
-      'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1600'
-    ]
-  },
-  {
-    id:'tlv-06',
-    title:'שכבות של זיכרון',
-    artists:['נטע צור'],
-    venue:'מוזיאון נחום גוטמן לאמנות',
-    address:'שד״ר שמעון רוקח 21, תל אביב',
-    city:'תל אביב', lat:32.0647, lng:34.7682,
+    description:'מיצב סאונד-וידאו על הקצב האורבני והאזנה כפעולה.' },
+  { id:'tlv-06', title:'שכבות של זיכרון', artists:['נטע צור'], venue:'מוזיאון נחום גוטמן לאמנות',
+    address:'שד״ר שמעון רוקח 21, תל אביב', city:'תל אביב', lat:32.0647, lng:34.7682,
     startDate:'2025-08-15', endDate:'2025-10-31',
-    description:'איור, ארכיונים אישיים ומפות דמיון של העיר.',
-    images:[
-      'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=1600',
-      'https://images.unsplash.com/photo-1498804103079-a6351b050096?w=1600'
-    ]
-  }
+    description:'איור, ארכיונים אישיים ומפות דמיון של העיר.' }
 ];
 
 // ===== עזר =====
@@ -184,6 +119,7 @@ function toast(msg){
   document.body.appendChild(el); setTimeout(()=>el.remove(), 2000);
 }
 
+// כפתור "התראות דפדפן" + "❤️ במעקב (N)" + מתג "רק במעקב" – נוצרים אוטומטית
 function ensureTopbarButtons(){
   const topbar = document.querySelector('header.topbar');
   if(!topbar) return;
@@ -209,16 +145,19 @@ function ensureTopbarButtons(){
   }
   updateFollowedCount();
 
-  // מתג "רק אמנים במעקב"
+  // מתג "הצג רק אמנים במעקב" ליד הסינון (אם יש אזור סינון)
   if(!$('#onlyFollowedWrap')){
     const wrap=document.createElement('div');
-    wrap.id='onlyFollowedWrap'; wrap.className='row'; wrap.style.margin='8px 0';
+    wrap.id='onlyFollowedWrap';
+    wrap.className='row';
+    wrap.style.margin='8px 0';
     wrap.innerHTML=`
       <label class="muted" style="display:flex;gap:6px;align-items:center;cursor:pointer">
         <input id="onlyFollowed" type="checkbox" ${onlyFollowed?'checked':''}>
         הצג רק תערוכות של אמנים במעקב
       </label>
     `;
+    // ננסה לשים מתחת לקטע הסינון הראשי (לפני המפה). אם אין – נוסיף ל-main.
     const main = document.querySelector('main .card');
     (main || document.body).appendChild(wrap);
     $('#onlyFollowed').addEventListener('change', (e)=>{
@@ -229,10 +168,13 @@ function ensureTopbarButtons(){
   }
 }
 function updateFollowedCount(){
-  const btn=$('#followedBtn'); if(!btn) return;
-  btn.textContent = `❤️ במעקב (${followedArtists.size})`;
+  const btn=$('#followedBtn');
+  if(!btn) return;
+  const n = followedArtists.size;
+  btn.textContent = n ? `❤️ במעקב (${n})` : '❤️ במעקב (0)';
 }
 
+// חלון ניהול אמנים במעקב – נוצר דינמית אם לא קיים
 function ensureFollowedDialog(){
   if($('#followedDialog')) return;
   const dlg=document.createElement('dialog');
@@ -252,27 +194,34 @@ function openFollowedDialog(){
   const body=$('#followedBody');
   const list=[...followedArtists].sort((a,b)=>a.localeCompare(b,'he'));
   if(!list.length){
-    body.innerHTML = `<div class="muted">לא במעקב עדיין. לחצ/י “עקוב/י אחרי …” בכרטיסי התערוכות.</div>`;
+    body.innerHTML = `<div class="muted">לא מעוקב/ת אחרי אמנים עדיין. לחצ/י “עקוב/י אחרי …” בכרטיסי התערוכות.</div>`;
   }else{
     body.innerHTML = list.map(a=>`
       <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #2a2a2a;border-radius:10px;padding:8px 10px;margin:6px 0;background:#121317">
         <div>${a}</div>
-        <div><button class="ghost" data-remove="${a}">הסר/י מעקב</button></div>
+        <div style="display:flex;gap:8px">
+          <button class="ghost" data-remove="${a}">הסר/י מעקב</button>
+        </div>
       </div>
     `).join('');
     body.querySelectorAll('[data-remove]').forEach(b=>{
       b.onclick=()=>{
         followedArtists.delete(b.getAttribute('data-remove'));
         store.set(FOLLOW_KEY, Array.from(followedArtists));
-        updateFollowedCount(); refresh(); openFollowedDialog(); toast('הוסר מעקב');
+        updateFollowedCount();
+        refresh(); // יעדכן תגיות/סינון
+        openFollowedDialog(); // רענון החלון
+        toast('הוסר מעקב');
       };
     });
   }
   $('#followedDialog').showModal();
 }
 
+// הוספת/הסרת מעקב מכרטיס + תגית “במעקב”
 function augmentCards(){
   document.querySelectorAll('[data-exhibit-id]').forEach(card=>{
+    // כפתור follow
     if(!card.querySelector('.followArtistBtn')){
       const artistsStr = card.getAttribute('data-artists')||'';
       if(artistsStr){
@@ -281,10 +230,18 @@ function augmentCards(){
         btn.className='pill followArtistBtn';
         btn.textContent = followedArtists.has(first) ? `מוסר/ת מעקב: ${first}` : `עקוב/י אחרי: ${first}`;
         btn.onclick = ()=>{
-          if(followedArtists.has(first)){ followedArtists.delete(first); toast(`הוסר מעקב אחרי ${first}`); btn.textContent=`עקוב/י אחרי: ${first}`; }
-          else { followedArtists.add(first); toast(`כעת עוקב/ת אחרי ${first}`); btn.textContent=`מוסר/ת מעקב: ${first}`; }
+          if(followedArtists.has(first)){
+            followedArtists.delete(first);
+            toast(`הוסר מעקב אחרי ${first}`);
+            btn.textContent=`עקוב/י אחרי: ${first}`;
+          }else{
+            followedArtists.add(first);
+            toast(`כעת עוקב/ת אחרי ${first}`);
+            btn.textContent=`מוסר/ת מעקב: ${first}`;
+          }
           store.set(FOLLOW_KEY, Array.from(followedArtists));
           updateFollowedCount();
+          // עדכון תגים אחרי שינוי
           updateFollowBadges();
           if(onlyFollowed) refresh();
         };
@@ -295,6 +252,8 @@ function augmentCards(){
   updateFollowedCount();
   updateFollowBadges();
 }
+
+// מציג/מסתיר תגית “במעקב” על כרטיסים רלוונטיים
 function updateFollowBadges(){
   document.querySelectorAll('[data-exhibit-id]').forEach(card=>{
     const artists = (card.getAttribute('data-artists')||'').split('|').map(s=>s.trim()).filter(Boolean);
@@ -311,7 +270,7 @@ function updateFollowBadges(){
   });
 }
 
-// התראות
+// התראות — כשיש תערוכה פעילה/עתידית לאמנים במעקב
 const isActiveOrFuture = ex => dayjs(ex.endDate).endOf('day').isAfter(dayjs());
 async function notify(title, body, data={}){
   try{
@@ -337,6 +296,8 @@ function scanFollowedAndNotify(){
   store.set(NOTIFIED_KEY, Array.from(notifiedExhibits));
 }
 setInterval(scanFollowedAndNotify, NOTIFY_EVERY_MIN*60*1000);
+
+// האזנה מ-SW (אופציונלי)
 navigator.serviceWorker?.addEventListener?.('message', (e)=>{
   if(e?.data?.type==='OPEN_EXHIBIT' && e.data.exhibitId){
     const ex = exhibitions.find(x=>x.id===e.data.exhibitId);
@@ -367,6 +328,7 @@ function renderList(items){
     const followed = (ex.artists||[]).some(a=> followedArtists.has(a));
     const card=document.createElement('div');
     card.className='card-item';
+    // data-attributes
     card.setAttribute('data-exhibit-id', ex.id);
     card.setAttribute('data-artists', (ex.artists||[]).join('|'));
     card.innerHTML=`
@@ -388,93 +350,17 @@ function renderList(items){
   augmentCards();
 }
 
-// ===== מודאל + קרוסלת תמונות =====
-let currentCarousel = { idx:0, imgs:[], exId:null };
-
 function openModal(ex){
   $('#modalTitle').textContent = `${ex.title} — ${ex.venue}`;
-
-  const imgs = Array.isArray(ex.images) && ex.images.length ? ex.images : [];
-  currentCarousel = { idx:0, imgs:imgs, exId:ex.id };
-
-  const gallery = imgs.length ? `
-    <div id="carousel" style="position:relative;border:1px solid #2a2a2a;border-radius:12px;overflow:hidden;margin:10px 0">
-      <img id="carouselImg" src="${imgs[0]}" alt="הזמנה/תמונה" style="width:100%;display:block;max-height:60vh;object-fit:cover">
-      <button id="carPrev" aria-label="הקודם" style="position:absolute;top:50%;inset-inline-start:8px;transform:translateY(-50%);background:#0009;color:#fff;border:0;border-radius:10px;padding:8px 10px;cursor:pointer">◀</button>
-      <button id="carNext" aria-label="הבא" style="position:absolute;top:50%;inset-inline-end:8px;transform:translateY(-50%);background:#0009;color:#fff;border:0;border-radius:10px;padding:8px 10px;cursor:pointer">▶</button>
-      <div id="carDots" style="position:absolute;bottom:6px;left:0;right:0;display:flex;gap:6px;justify-content:center">
-        ${imgs.map((_,i)=>`<span data-dot="${i}" style="width:8px;height:8px;border-radius:50%;background:${i===0?'#fff':'#666'};display:inline-block;cursor:pointer"></span>`).join('')}
-      </div>
-    </div>
-    <div id="thumbs" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:6px 0 10px">
-      ${imgs.map((src,i)=>`<img data-thumb="${i}" src="${src}" alt="" style="width:74px;height:54px;object-fit:cover;border-radius:8px;border:${i===0?'2px solid #8b5cf6':'1px solid #2a2a2a'};cursor:pointer;background:#111">`).join('')}
-    </div>
-  ` : '';
-
   $('#modalBody').innerHTML = `
     <div class="muted">${ex.address}</div>
     <div style="margin:.5rem 0">אמנים: <b>${ex.artists.join(', ')}</b></div>
     <div class="muted">תאריכים: ${dayjs(ex.startDate).format('DD.MM.YYYY')} – ${dayjs(ex.endDate).format('DD.MM.YYYY')}</div>
     <p style="margin-top:10px">${ex.description}</p>
-    ${gallery}
   `;
-
-  // חיבור אירועי קרוסלה אם יש תמונות
-  if (imgs.length){
-    $('#carPrev').onclick = ()=> shiftCarousel(-1);
-    $('#carNext').onclick = ()=> shiftCarousel(+1);
-    $('#carDots')?.querySelectorAll('[data-dot]').forEach(d=> d.onclick = ()=> goTo(+d.getAttribute('data-dot')));
-    $('#thumbs')?.querySelectorAll('[data-thumb]').forEach(t=> t.onclick = ()=> goTo(+t.getAttribute('data-thumb')));
-
-    // החלקה בנייד
-    const imgEl = $('#carouselImg');
-    let sx=0, dx=0;
-    imgEl.addEventListener('touchstart', (e)=>{ sx = e.touches[0].clientX; }, {passive:true});
-    imgEl.addEventListener('touchmove',  (e)=>{ dx = e.touches[0].clientX - sx; }, {passive:true});
-    imgEl.addEventListener('touchend',   ()=>{ if(Math.abs(dx)>40){ shiftCarousel(dx<0?+1:-1); } sx=dx=0; });
-
-    // חיצים במקלדת
-    document.addEventListener('keydown', onKeyCarousel);
-  }
-
   $('#exhibitModal').showModal();
 }
-$('#modalClose')?.addEventListener('click', ()=>{
-  $('#exhibitModal').close();
-  document.removeEventListener('keydown', onKeyCarousel);
-});
-
-function onKeyCarousel(e){
-  if (!$('#exhibitModal')?.open) return;
-  if (e.key === 'ArrowRight') shiftCarousel(+1);
-  if (e.key === 'ArrowLeft')  shiftCarousel(-1);
-}
-
-function shiftCarousel(delta){
-  const {imgs} = currentCarousel;
-  if (!imgs.length) return;
-  let i = currentCarousel.idx + delta;
-  if (i<0) i = imgs.length-1;
-  if (i>=imgs.length) i = 0;
-  goTo(i);
-}
-function goTo(i){
-  const {imgs} = currentCarousel;
-  if (!imgs.length) return;
-  currentCarousel.idx = i;
-  const imgEl = $('#carouselImg');
-  if (imgEl){
-    imgEl.style.opacity='0';
-    setTimeout(()=>{ imgEl.src = imgs[i]; imgEl.onload=()=>{imgEl.style.opacity='1';}; }, 120);
-  }
-  // עדכון נקודות ותʼמונות
-  $('#carDots')?.querySelectorAll('[data-dot]').forEach((d,idx)=>{
-    d.style.background = idx===i ? '#fff' : '#666';
-  });
-  $('#thumbs')?.querySelectorAll('[data-thumb]').forEach((t,idx)=>{
-    t.style.border = idx===i ? '2px solid #8b5cf6' : '1px solid #2a2a2a';
-  });
-}
+$('#modalClose')?.addEventListener('click', ()=>$('#exhibitModal').close());
 
 // ===== סינון ותרענון =====
 function currentFilters(){
