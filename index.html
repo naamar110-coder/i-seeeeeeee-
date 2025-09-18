@@ -46,7 +46,7 @@
       letter-spacing:1px;
       text-transform:lowercase;
       background:none;
-      box-shadow:none; /* no border/box */
+      box-shadow:none;
     }
 
     main{max-width:1024px; margin:18px auto; padding:0 16px}
@@ -82,6 +82,18 @@
 
     #map{height:360px; border:2px solid var(--border); box-shadow: var(--shadow)}
     #results .card{ background:#fff; }
+
+    /* עיצוב המילה OR */
+    .or-text{
+      font-family:'Press Start 2P', monospace;
+      font-size:0.8rem;
+      padding:6px 10px;
+      background:#000;
+      color:#00e676;
+      border:2px solid var(--border);
+      box-shadow: var(--shadow), 0 0 8px #00e676;
+      text-transform:uppercase;
+    }
   </style>
 </head>
 <body>
@@ -99,7 +111,7 @@
       <div class="row" style="margin-bottom:8px">
         <input id="address" type="text" placeholder="Address (e.g., Dizengoff 100, Tel Aviv)" style="flex:1 1 280px">
         <button id="btnGeocode" class="primary">Search address</button>
-        <span style="font-weight:bold; margin:0 4px">Or</span>
+        <span class="or-text">Or</span>
         <button id="btnMyLoc">My location</button>
       </div>
 
@@ -130,7 +142,7 @@
     </section>
   </main>
 
-  <script src="app.js?v=74"></script>
+  <script src="app.js?v=75"></script>
   <script>
     const r = document.getElementById('radius'), lbl = document.getElementById('rLabel');
     if (r && lbl) r.addEventListener('input', ()=> lbl.textContent = r.value);
