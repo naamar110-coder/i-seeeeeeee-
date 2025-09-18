@@ -101,8 +101,11 @@
       display:flex;
       gap:8px;
       width:100%;
+      justify-content:center;
     }
-    .dates-row input{flex:1}
+    .dates-row input{flex:1; max-width:180px}
+    .artist-row{display:flex; justify-content:center; width:100%}
+    .artist-row input{max-width:320px}
   </style>
 </head>
 <body>
@@ -124,8 +127,8 @@
         <button id="btnMyLoc">My location</button>
       </div>
 
-      <div class="row" style="margin-bottom:8px">
-        <input id="artist" type="text" placeholder="Search by artist name" style="flex:1 1 260px">
+      <div class="artist-row" style="margin-bottom:8px">
+        <input id="artist" type="text" placeholder="Search by artist name">
       </div>
 
       <div class="dates-row" style="margin-bottom:8px">
@@ -157,7 +160,7 @@
     </section>
   </main>
 
-  <script src="app.js?v=76"></script>
+  <script src="app.js?v=77"></script>
   <script>
     const r = document.getElementById('radius'), lbl = document.getElementById('rLabel');
     if (r && lbl) r.addEventListener('input', ()=> lbl.textContent = r.value);
