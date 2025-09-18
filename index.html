@@ -58,6 +58,7 @@
       padding:16px; margin-bottom:18px;
     }
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .row.center{justify-content:center} /* מרכז */
     input[type=text], input[type=date]{
       width:100%; padding:12px 12px;
       border:2px solid var(--border); border-radius:0; background:#fff; color:#000;
@@ -94,6 +95,14 @@
       box-shadow: var(--shadow), 0 0 8px #00e676;
       text-transform:uppercase;
     }
+
+    /* שדות תאריכים באותה שורה */
+    .dates-row{
+      display:flex;
+      gap:8px;
+      width:100%;
+    }
+    .dates-row input{flex:1}
   </style>
 </head>
 <body>
@@ -105,11 +114,11 @@
   <main>
     <section class="card">
       <h2 style="margin:0 0 16px; font-family:'Assistant',sans-serif; font-size:1.6rem; font-weight:700; text-align:center">
-        what do you (wanna) see?
+        what do you (wanna) see ?
       </h2>
 
-      <div class="row" style="margin-bottom:8px">
-        <input id="address" type="text" placeholder="Address (e.g., Dizengoff 100, Tel Aviv)" style="flex:1 1 280px">
+      <div class="row center" style="margin-bottom:8px">
+        <input id="address" type="text" placeholder="Address (e.g., Dizengoff 100, Tel Aviv)" style="flex:1 1 280px; max-width:320px">
         <button id="btnGeocode" class="primary">Search address</button>
         <span class="or-text">Or</span>
         <button id="btnMyLoc">My location</button>
@@ -117,8 +126,14 @@
 
       <div class="row" style="margin-bottom:8px">
         <input id="artist" type="text" placeholder="Search by artist name" style="flex:1 1 260px">
-        <input id="dateFrom" type="date" style="flex:1 1 150px">
-        <input id="dateTo" type="date" style="flex:1 1 150px">
+      </div>
+
+      <div class="dates-row" style="margin-bottom:8px">
+        <input id="dateFrom" type="date">
+        <input id="dateTo" type="date">
+      </div>
+
+      <div class="row center" style="margin-bottom:8px">
         <button id="btnSync" class="primary">Filter shows</button>
       </div>
 
@@ -142,7 +157,7 @@
     </section>
   </main>
 
-  <script src="app.js?v=75"></script>
+  <script src="app.js?v=76"></script>
   <script>
     const r = document.getElementById('radius'), lbl = document.getElementById('rLabel');
     if (r && lbl) r.addEventListener('input', ()=> lbl.textContent = r.value);
