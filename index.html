@@ -18,7 +18,6 @@
       --fg:#000000;
       --muted:#222;
       --card:#ffffff;
-      --grid:#eee;
       --border:#000;
       --accent:#00e676;
       --shadow: 0 0 0 2px var(--border);
@@ -28,10 +27,6 @@
     body{
       margin:0; color:var(--fg); background:var(--bg);
       font-family:'Assistant',system-ui,Arial;
-      background-image:
-        linear-gradient(to right, var(--grid) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
-      background-size: 16px 16px;
     }
 
     header.topbar{
@@ -45,8 +40,6 @@
       font-size:1.6rem;
       letter-spacing:1px;
       text-transform:lowercase;
-      background:none;
-      box-shadow:none;
       color:#000;
     }
 
@@ -57,13 +50,12 @@
       color:#000;
       border:2px solid var(--border);
       box-shadow: var(--shadow);
-      border-radius:0;
       padding:16px; margin-bottom:18px;
     }
 
     .hero-title{
-      direction:ltr;            /* יישור LTR */
-      unicode-bidi:plaintext;   /* שומר על סימן השאלה בסוף */
+      direction:ltr;           /* מונע מה-? לברוח */
+      unicode-bidi:plaintext;  /* שומר את הפיסוק בסוף */
       text-align:center;
       margin:0 0 16px;
       font-family:'Assistant',sans-serif;
@@ -74,9 +66,9 @@
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
     .row.center{justify-content:center}
     input[type=text], input[type=date]{
-      width:100%; padding:12px 12px;
-      border:2px solid var(--border); border-radius:0; background:#fff; color:#000;
-      box-shadow: var(--shadow);
+      width:100%; padding:12px;
+      border:2px solid var(--border);
+      background:#fff; color:#000;
       font-family:'Assistant',system-ui;
     }
     input[type=range]{accent-color:var(--accent)}
@@ -84,26 +76,12 @@
 
     button{
       border:2px solid var(--border);
-      box-shadow: var(--shadow);
-      border-radius:0; cursor:pointer;
+      cursor:pointer;
       background:#000; color:#fff;
       padding:10px 14px; font-weight:700;
-      transition: transform .05s ease, box-shadow .05s ease;
       font-family:'Assistant',system-ui;
     }
     button.primary{ background:#000; color:#fff }
-    button:hover{ transform: translateY(-1px); box-shadow: 0 0 0 2px var(--border), 0 0 12px var(--accent) }
-    button:active{ transform: translateY(0) scale(.98) }
-
-    #map{height:360px; border:2px solid var(--border); box-shadow: var(--shadow)}
-
-    #results .card{
-      background:#fff;
-      color:#000;
-      border:2px solid #000;
-      box-shadow: var(--shadow);
-    }
-
     .or-text{
       font-family:'Press Start 2P', monospace;
       font-size:0.8rem;
@@ -111,17 +89,19 @@
       background:#000;
       color:#00e676;
       border:2px solid var(--border);
-      box-shadow: var(--shadow), 0 0 8px #00e676;
-      text-transform:uppercase;
     }
 
-    .dates-row{display:flex; gap:8px; width:100%; justify-content:center;}
+    .dates-row{display:flex; gap:8px; justify-content:center;}
     .dates-row input{flex:1; max-width:180px}
-    .artist-row{display:flex; justify-content:center; width:100%}
+    .artist-row{display:flex; justify-content:center;}
     .artist-row input{max-width:320px}
 
+    #map{height:360px; border:2px solid var(--border);}
+
+    #results .card{background:#fff; color:#000; border:2px solid #000;}
+
     .modal-overlay{
-      position:fixed; top:0; left:0; width:100%; height:100%;
+      position:fixed; inset:0;
       background:rgba(0,0,0,0.6);
       display:none; justify-content:center; align-items:center;
       z-index:1000;
@@ -130,28 +110,14 @@
       background:#fff;
       color:#000;
       border:2px solid #000;
-      box-shadow: var(--shadow);
       padding:20px;
       max-width:600px;
       max-height:80vh;
       overflow-y:auto;
-      font-family:'Assistant',sans-serif;
     }
-    .modal h2{margin-top:0; font-size:1.4rem; font-weight:700}
-    .modal img{
-      max-width:100%;
-      border:2px solid #000;
-      margin:8px 0;
-      display:block;
-    }
-    .modal button.close{
-      background:#000; color:#fff;
-      margin-top:12px;
-      padding:8px 12px;
-      font-weight:700;
-      border:2px solid #000;
-      cursor:pointer;
-    }
+    .modal h2{margin-top:0; font-size:1.4rem;}
+    .modal img{max-width:100%; border:2px solid #000; margin:8px 0;}
+    .modal button.close{background:#000; color:#fff; margin-top:12px; padding:8px 12px; font-weight:700; border:2px solid #000;}
   </style>
 </head>
 <body>
@@ -163,7 +129,7 @@
   <main>
     <section class="card">
       <!-- הכותרת המעודכנת -->
-      <h2 class="hero-title">Why do you see?</h2>
+      <h2 class="hero-title">What do you (wanna) see?</h2>
 
       <div class="row center" style="margin-bottom:8px">
         <input id="address" type="text" placeholder="Address (e.g., Dizengoff 100, Tel Aviv)" style="flex:1 1 280px; max-width:320px">
@@ -198,7 +164,7 @@
     </section>
 
     <section class="card">
-      <h3 style="margin:0 0 8px; font-family:'Press Start 2P',monospace; font-size:1rem">shows nearby</h3>
+      <h3 style="margin:0 0 8px; font-family:'Press Start 2P',monospace; font-size:1rem">Shows nearby</h3>
       <div id="results"></div>
     </section>
   </main>
@@ -211,7 +177,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=90"></script>
+  <script src="app.js?v=92"></script>
   <script>
     const r = document.getElementById('radius'), lbl = document.getElementById('rLabel');
     if (r && lbl) r.addEventListener('input', ()=> lbl.textContent = r.value);
