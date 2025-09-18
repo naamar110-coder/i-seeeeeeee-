@@ -16,8 +16,8 @@
     :root{
       --bg:#ffffff;
       --fg:#000000;
-      --muted:#444;
-      --card:#fafafa;
+      --muted:#222;        /* כהה יותר – לא אפור דהוי */
+      --card:#ffffff;      /* לבן מלא גם למעלה וגם למטה */
       --grid:#eee;
       --border:#000;
       --accent:#00e676;
@@ -47,18 +47,22 @@
       text-transform:lowercase;
       background:none;
       box-shadow:none;
+      color:#000;
     }
 
     main{max-width:1024px; margin:18px auto; padding:0 16px}
+
+    /* כרטיסים – לבן וטקסט שחור */
     .card{
       background:var(--card);
+      color:#000;
       border:2px solid var(--border);
       box-shadow: var(--shadow);
       border-radius:0;
       padding:16px; margin-bottom:18px;
     }
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
-    .row.center{justify-content:center} /* מרכז */
+    .row.center{justify-content:center}
     input[type=text], input[type=date]{
       width:100%; padding:12px 12px;
       border:2px solid var(--border); border-radius:0; background:#fff; color:#000;
@@ -82,9 +86,18 @@
     button:active{ transform: translateY(0) scale(.98) }
 
     #map{height:360px; border:2px solid var(--border); box-shadow: var(--shadow)}
-    #results .card{ background:#fff; }
 
-    /* עיצוב המילה OR */
+    /* רשימת התערוכות למטה – אותו עיצוב (לבן/שחור) */
+    #results, #results *{
+      color:#000;
+    }
+    #results .card{
+      background:#fff;
+      border:2px solid #000;
+      box-shadow: var(--shadow);
+    }
+
+    /* "Or" בסגנון פיקסלי */
     .or-text{
       font-family:'Press Start 2P', monospace;
       font-size:0.8rem;
@@ -96,12 +109,9 @@
       text-transform:uppercase;
     }
 
-    /* שדות תאריכים באותה שורה */
+    /* שדות תאריכים באותה שורה ומרוכז */
     .dates-row{
-      display:flex;
-      gap:8px;
-      width:100%;
-      justify-content:center;
+      display:flex; gap:8px; width:100%; justify-content:center;
     }
     .dates-row input{flex:1; max-width:180px}
     .artist-row{display:flex; justify-content:center; width:100%}
@@ -117,7 +127,7 @@
   <main>
     <section class="card">
       <h2 style="margin:0 0 16px; font-family:'Assistant',sans-serif; font-size:1.6rem; font-weight:700; text-align:center">
-        what do you (wanna) see ?
+        What do you see?
       </h2>
 
       <div class="row center" style="margin-bottom:8px">
@@ -153,14 +163,12 @@
     </section>
 
     <section class="card">
-      <h3 style="margin:0 0 8px; font-family:'Press Start 2P',monospace; font-size:1rem">
-        shows nearby
-      </h3>
+      <h3 style="margin:0 0 8px; font-family:'Press Start 2P',monospace; font-size:1rem">shows nearby</h3>
       <div id="results"></div>
     </section>
   </main>
 
-  <script src="app.js?v=77"></script>
+  <script src="app.js?v=79"></script>
   <script>
     const r = document.getElementById('radius'), lbl = document.getElementById('rLabel');
     if (r && lbl) r.addEventListener('input', ()=> lbl.textContent = r.value);
