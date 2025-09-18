@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>i_seeeeeeee · תערוכות קרובות אלייך</title>
+  <title>i_seeeeeeee · exhibitions around you</title>
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- Fonts: רטרו + קריא -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Assistant:wght@300;400;700;800&display=swap" rel="stylesheet">
 
   <style>
@@ -19,9 +19,8 @@
       --muted:#444;
       --card:#fafafa;
       --grid:#eee;
-      --border:#000;          /* שחור, מתאים לפיקסלים */
-      --accent:#00e676;       /* ניאון ירקרק */
-      --accent-dark:#00b24f;
+      --border:#000;
+      --accent:#00e676;
       --shadow: 0 0 0 2px var(--border);
     }
     *{box-sizing:border-box}
@@ -29,14 +28,12 @@
     body{
       margin:0; color:var(--fg); background:var(--bg);
       font-family:'Assistant',system-ui,Arial;
-      /* רקע "משבצות" עדין */
       background-image:
         linear-gradient(to right, var(--grid) 1px, transparent 1px),
         linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
       background-size: 16px 16px;
     }
 
-    /* סרגל עליון – לוגו גדול ומרוכז */
     header.topbar{
       position:sticky; top:0; z-index:10;
       display:flex; justify-content:center; align-items:center;
@@ -46,25 +43,23 @@
     }
     .logo{
       font-family:'Press Start 2P', monospace;
-      font-size:2.2rem; letter-spacing:1px;
+      font-size:1.6rem; /* reduced */
+      letter-spacing:1px;
       text-transform:lowercase;
       position:relative;
-      padding:6px 10px;
+      padding:4px 8px;
       box-shadow: var(--shadow);
       background:#fff;
     }
 
     main{max-width:1024px; margin:18px auto; padding:0 16px}
-
-    /* כרטיסים – מסגרת "פיקסלים" ושוליים */
     .card{
       background:var(--card);
       border:2px solid var(--border);
       box-shadow: var(--shadow);
-      border-radius:0; /* פיקסלי */
+      border-radius:0;
       padding:16px; margin-bottom:18px;
     }
-
     .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
     input[type=text], input[type=date]{
       width:100%; padding:12px 12px;
@@ -73,10 +68,8 @@
       font-family:'Assistant',system-ui;
     }
     input[type=range]{accent-color:var(--accent)}
-
     .muted{color:var(--muted)}
 
-    /* כפתורים – פיקסל/ארקייד */
     button{
       border:2px solid var(--border);
       box-shadow: var(--shadow);
@@ -90,29 +83,8 @@
     button:hover{ transform: translateY(-1px); box-shadow: 0 0 0 2px var(--border), 0 0 12px var(--accent) }
     button:active{ transform: translateY(0) scale(.98) }
 
-    /* מפה */
     #map{height:360px; border:2px solid var(--border); box-shadow: var(--shadow)}
-
-    /* כרטיסי תוצאות פנימיים */
-    #results .card{
-      background:#fff;
-    }
-    .x-item{
-      display:flex; gap:12px; align-items:center; padding:12px;
-      border:2px solid var(--border); box-shadow: var(--shadow); background:#fff;
-    }
-    .x-thumb{width:84px; height:84px; object-fit:cover; border:2px solid var(--border); box-shadow: var(--shadow)}
-    .x-title{font-weight:800}
-    .x-meta{color:#111; font-size:.95rem}
-    .x-sub{color:#555; font-size:.85rem}
-    .x-actions{display:flex; gap:8px}
-
-    /* מודאל גלריה (אם את משתמשת בגרסת ה-JS עם מודאל) */
-    .modal-backdrop{position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:9999}
-    .modal{background:#fff; color:#000; max-width:920px; width:92%; border:2px solid var(--border); box-shadow: var(--shadow)}
-    .modal header{display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:2px solid var(--border)}
-    .modal .gallery{position:relative; height:52vh; max-height:520px; overflow:hidden; border-top:2px solid var(--border)}
-    .modal .gallery img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .25s; opacity:0}
+    #results .card{ background:#fff; }
   </style>
 </head>
 <body>
@@ -123,27 +95,29 @@
 
   <main>
     <section class="card">
-      <h2 style="margin:0 0 12px; font-family:'Press Start 2P',monospace; font-size:1.1rem">נאתר תערוכות סביבך</h2>
+      <h2 style="margin:0 0 12px; font-family:'Press Start 2P',monospace; font-size:1.1rem">
+        what do you (wanna) see?
+      </h2>
 
       <div class="row" style="margin-bottom:8px">
-        <input id="address" type="text" placeholder="כתובת (למשל: דיזנגוף 100 תל אביב)" style="flex:1 1 280px">
-        <button id="btnGeocode" class="primary">חפש כתובת</button>
-        <button id="btnMyLoc">במיקומי</button>
+        <input id="address" type="text" placeholder="Address (e.g., Dizengoff 100, Tel Aviv)" style="flex:1 1 280px">
+        <button id="btnGeocode" class="primary">Search address</button>
+        <button id="btnMyLoc">My location</button>
       </div>
 
       <div class="row" style="margin-bottom:8px">
-        <input id="artist" type="text" placeholder="חפש/י לפי שם אמן/אמנית" style="flex:1 1 260px">
+        <input id="artist" type="text" placeholder="Search by artist name" style="flex:1 1 260px">
         <input id="dateFrom" type="date" style="flex:1 1 150px">
         <input id="dateTo" type="date" style="flex:1 1 150px">
-        <button id="btnSync" class="primary">סינון תערוכות</button>
+        <button id="btnSync" class="primary">Filter shows</button>
       </div>
 
       <div class="row" style="gap:12px">
-        <div class="muted">רדיוס (ק״מ): <span id="rLabel">10</span></div>
+        <div class="muted">Radius (km): <span id="rLabel">10</span></div>
         <input id="radius" type="range" min="1" max="40" value="10" style="flex:1">
       </div>
 
-      <div id="status" class="muted" style="margin-top:8px">לא נבחר מיקום עדיין</div>
+      <div id="status" class="muted" style="margin-top:8px">No location selected yet</div>
     </section>
 
     <section class="card">
@@ -151,15 +125,15 @@
     </section>
 
     <section class="card">
-      <h3 style="margin:0 0 8px; font-family:'Press Start 2P',monospace; font-size:1rem">תערוכות נמצאו</h3>
+      <h3 style="margin:0 0 8px; font-family:'Press Start 2P',monospace; font-size:1rem">
+        shows nearby
+      </h3>
       <div id="results"></div>
     </section>
   </main>
 
-  <!-- האפליקציה -->
-  <script src="app.js?v=70"></script>
+  <script src="app.js?v=73"></script>
   <script>
-    // עדכון תצוגת הערך ליד הסליידר
     const r = document.getElementById('radius'), lbl = document.getElementById('rLabel');
     if (r && lbl) r.addEventListener('input', ()=> lbl.textContent = r.value);
   </script>
